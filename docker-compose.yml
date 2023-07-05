@@ -17,6 +17,38 @@ services:
     networks:
     - tg_bot
 
+  admin_panel:
+    image: "${BOT_IMAGE_NAME:-tg_bot-image}"
+    container_name: "${ADMIN_PANEL_CONTAINER_NAME:-admin_panel-container}"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: "/usr/src/app"
+    ports:
+      - "7000:7000"
+    command: uvicorn --host 0.0.0.0 --port 7000 admin_panel:app
+    restart: always
+    env_file:
+      - ".env"
+    networks:
+      - tg_bot
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: morojni
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - tg_bot
+
+volumes:
+  pgdata:
 
 networks:
   tg_bot:

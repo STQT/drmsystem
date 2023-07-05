@@ -1,14 +1,15 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 from environs import Env
 
 
 @dataclass
 class DbConfig:
-    host: str
-    password: str
-    user: str
-    database: str
+    database_url: str
+    admin_login: str
+    admin_password: str
+    secret_key: str
 
 
 @dataclass
@@ -20,7 +21,12 @@ class TgBot:
 
 @dataclass
 class Miscellaneous:
-    other_params: str = None
+    payme: str
+    click: str
+    sentry_sdk: str
+    sms_url: str
+    sms_login: str
+    sms_pass: str
 
 
 @dataclass
@@ -41,10 +47,22 @@ def load_config(path: str = None):
             use_redis=env.bool("USE_REDIS"),
         ),
         db=DbConfig(
-            host=env.str('DB_HOST'),
-            password=env.str('DB_PASS'),
-            user=env.str('DB_USER'),
-            database=env.str('DB_NAME')
+            database_url=env.str('DATABASE_URL'),
+            admin_login=env.str('DB_ADMIN_LOGIN'),
+            admin_password=env.str('DB_ADMIN_PASSWORD'),
+            secret_key=env.str("DB_ADMIN_SECRET_KEY")
         ),
-        misc=Miscellaneous()
+        misc=Miscellaneous(
+            payme=env.str('PAYME'),
+            click=env.str('CLICK'),
+            sentry_sdk=env.str('SENTRY_SDK'),
+            sms_url=env.str('SMS_URL'),
+            sms_login=env.str('SMS_LOGIN'),
+            sms_pass=env.str('SMS_PASS')
+        )
     )
+
+
+I18N_DOMAIN = 'testbot'
+BASE_DIR = Path(__file__).parent
+LOCALES_DIR = BASE_DIR / 'locales'

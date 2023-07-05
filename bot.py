@@ -6,17 +6,22 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 
 from tgbot.config import load_config
+from tgbot.db.queries import Database
 from tgbot.filters.admin import AdminFilter
 from tgbot.handlers.admin import register_admin
 from tgbot.handlers.echo import register_echo
 from tgbot.handlers.user import register_user
+from tgbot.middlewares.acl import ACLMiddleware
 from tgbot.middlewares.environment import EnvironmentMiddleware
+from tgbot.misc.i18n import i18ns
 
 logger = logging.getLogger(__name__)
 
 
 def register_all_middlewares(dp, config):
     dp.setup_middleware(EnvironmentMiddleware(config=config))
+    dp.setup_middleware(ACLMiddleware())
+    dp.setup_middleware(i18ns)
 
 
 def register_all_filters(dp):
@@ -43,6 +48,7 @@ async def main():
     dp = Dispatcher(bot, storage=storage)
 
     bot['config'] = config
+    bot['db_api'] = Database()
 
     register_all_middlewares(dp, config)
     register_all_filters(dp)

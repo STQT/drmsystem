@@ -13,6 +13,7 @@ _ = i18ns.gettext
 
 async def user_start(message: Message, user_lang, **kwargs):
     logging.info(kwargs)
+    logging.info('Start')
     await message.answer(_("Assalomu alaykum!\n"
                            "Botimizga xush kelibsiz!\n"
                            "Iltimos tilni tanlang"), reply_markup=language_keyboards())

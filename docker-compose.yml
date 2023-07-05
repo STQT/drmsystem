@@ -26,7 +26,7 @@ services:
     working_dir: "/usr/src/app"
     ports:
       - "7000:7000"
-    command: uvicorn --host 0.0.0.0 --port 7000 admin_panel:app
+    command: uvicorn --host 0.0.0.0 --port 7000 admin.admin_panel:app
     restart: always
     env_file:
       - ".env"

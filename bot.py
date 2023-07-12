@@ -10,7 +10,9 @@ from tgbot.db.queries import Database
 from tgbot.filters.admin import AdminFilter
 from tgbot.handlers.admin import register_admin
 from tgbot.handlers.echo import register_echo
-from tgbot.handlers.user import register_user
+from tgbot.handlers.main_menu import register_menu
+from tgbot.handlers.settings import register_settings
+from tgbot.handlers.user_start import register_user
 from tgbot.middlewares.acl import ACLMiddleware
 from tgbot.middlewares.environment import EnvironmentMiddleware
 from tgbot.misc.i18n import i18ns
@@ -18,8 +20,8 @@ from tgbot.misc.i18n import i18ns
 logger = logging.getLogger(__name__)
 
 
-def register_all_middlewares(dp, config):
-    dp.setup_middleware(EnvironmentMiddleware(config=config))
+def register_all_middlewares(dp, config, db):
+    dp.setup_middleware(EnvironmentMiddleware(config=config, db=db))
     dp.setup_middleware(ACLMiddleware())
     dp.setup_middleware(i18ns)
 
@@ -31,6 +33,8 @@ def register_all_filters(dp):
 def register_all_handlers(dp):
     register_admin(dp)
     register_user(dp)
+    register_menu(dp)
+    register_settings(dp)
 
     register_echo(dp)
 
@@ -48,9 +52,8 @@ async def main():
     dp = Dispatcher(bot, storage=storage)
 
     bot['config'] = config
-    bot['db_api'] = Database()
 
-    register_all_middlewares(dp, config)
+    register_all_middlewares(dp, config, db=Database())
     register_all_filters(dp)
     register_all_handlers(dp)
 

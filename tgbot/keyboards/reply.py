@@ -18,3 +18,24 @@ def main_menu_keyboard(locale):
     keyboard.add(KeyboardButton(text=_("Izoh qoldirish", locale=locale)),
                  KeyboardButton(text=_("Sozlamalar", locale=locale)))
     return keyboard
+
+
+def settings_buttons():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(text=_("Mening manzilim")),
+                 KeyboardButton(text=_("Tilni o'zgartirish")))
+    keyboard.add(KeyboardButton(text=_("Orqaga")))
+    return keyboard
+
+
+def address_clear():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(text=_("Tozalash")))
+    keyboard.add(KeyboardButton(text=_("Orqaga")))
+    return keyboard
+
+
+def back_button(locale):
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(text=_("Orqaga", locale=locale)))
+    return keyboard

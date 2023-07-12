@@ -1,8 +1,6 @@
 aiogram~=2.18
 aioredis<2.0
 environs~=9.0
-sqladmin==0.13.0
-SQLAlchemy==1.4.35
 fastapi==0.95.1
 aiosqlite==0.18.0
 uvicorn==0.22.0

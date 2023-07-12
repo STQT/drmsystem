@@ -4,7 +4,6 @@ from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
-from tgbot.db.db_api import get_data
 from tgbot.db.queries import Database
 from tgbot.keyboards.reply import language_keyboards, main_menu_keyboard, languages
 from tgbot.misc.states import UserRegisterState, MainMenuState
@@ -13,12 +12,14 @@ from tgbot.misc.i18n import i18ns
 _ = i18ns.gettext
 
 
-
-
 async def user_start(m: Message, db: Database):
-    f = await get_data()
-    logging.info(f)
-    user = await db.get_user(m.from_user.id)
+    logging.info(m.from_user.language_code)
+    user = await db.get_user(
+        username=m.from_user.username,
+        fullname=m.from_user.full_name,
+        user_id=m.from_user.id,
+        user_lang=m.from_user.language_code,
+                             )
     user_lang = user.get("user_lang")
     if user:
         await m.answer(_("Bo'limni tanlang", locale=user_lang),

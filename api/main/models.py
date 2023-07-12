@@ -37,7 +37,6 @@ class Product(models.Model):
 
 class CustomUser(AbstractBaseUser):
     id = models.IntegerField(primary_key=True)  # Using ID as primary key
-    phone = models.CharField(max_length=20)
     username = models.CharField(max_length=150, null=True)
     fullname = models.CharField(max_length=255)
     user_lang = models.CharField(max_length=2, default='uz')

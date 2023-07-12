@@ -50,10 +50,11 @@ async def main():
     storage = RedisStorage2() if config.tg_bot.use_redis else MemoryStorage()
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     dp = Dispatcher(bot, storage=storage)
-
+    logging.info(config)
     bot['config'] = config
 
-    register_all_middlewares(dp, config, db=Database())
+    register_all_middlewares(dp, config,
+                             db=Database(config.db.base_url))
     register_all_filters(dp)
     register_all_handlers(dp)
 

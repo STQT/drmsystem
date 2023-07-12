@@ -6,10 +6,7 @@ from environs import Env
 
 @dataclass
 class DbConfig:
-    database_url: str
-    admin_login: str
-    admin_password: str
-    secret_key: str
+    base_url: str
 
 
 @dataclass
@@ -47,10 +44,7 @@ def load_config(path: str = None):
             use_redis=env.bool("USE_REDIS"),
         ),
         db=DbConfig(
-            database_url=env.str('DATABASE_URL'),
-            admin_login=env.str('DB_ADMIN_LOGIN'),
-            admin_password=env.str('DB_ADMIN_PASSWORD'),
-            secret_key=env.str("DB_ADMIN_SECRET_KEY")
+            base_url=env.str("API_BASE_URL")
         ),
         misc=Miscellaneous(
             payme=env.str('PAYME'),

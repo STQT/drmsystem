@@ -22,20 +22,53 @@ def main_menu_keyboard(locale):
 
 def settings_buttons():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(KeyboardButton(text=_("Mening manzilim")),
+    keyboard.add(KeyboardButton(text=_("🗺 Mening manzilim")),
                  KeyboardButton(text=_("Tilni o'zgartirish")))
-    keyboard.add(KeyboardButton(text=_("Orqaga")))
+    keyboard.add(KeyboardButton(text=_("⬅️ Ortga")))
     return keyboard
 
 
 def address_clear():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(KeyboardButton(text=_("Tozalash")))
-    keyboard.add(KeyboardButton(text=_("Orqaga")))
+    keyboard.add(KeyboardButton(text=_("⬅️ Ortga")))
     return keyboard
 
 
 def back_button(locale):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(KeyboardButton(text=_("Orqaga", locale=locale)))
+    keyboard.add(KeyboardButton(text=_("⬅️ Ortga", locale=locale)))
+    return keyboard
+
+
+def menu_keyboards():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(text=_("🗺 Mening manzilim")))
+    keyboard.add(KeyboardButton(text=_("📍 Manzil jo'natish"), request_location=True),
+                 KeyboardButton(text=_("⬅️ Ortga")))
+    return keyboard
+
+
+def get_verification():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(text=_("✅ Ha")), KeyboardButton(text=_("❌ Yo'q")))
+    keyboard.add(KeyboardButton(text=_("⬅️ Ortga")))
+    return keyboard
+
+
+def generate_category_keyboard(categories, user_lang):
+    name_key = "name_" + user_lang
+    # Create the ReplyKeyboardMarkup with two columns/rows
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    for category in categories:
+        keyboard.add(KeyboardButton(category[name_key]))
+    keyboard.add(KeyboardButton(_("⬅️ Ortga")), KeyboardButton("📥 Savat"))
+    return keyboard
+
+
+def locations_buttons(locations):
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    for location in locations:
+        keyboard.add(KeyboardButton(text=location['name']))
+    keyboard.add(KeyboardButton(text=_("⬅️ Ortga")))
     return keyboard

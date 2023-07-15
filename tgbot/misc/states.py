@@ -17,3 +17,9 @@ class SettingsState(StatesGroup):
     change_lang = State()
     get_lang = State()
     change_address = State()
+
+
+class BuyState(StatesGroup):
+    get_location = State()
+    get_category = State()
+    get_product = State()

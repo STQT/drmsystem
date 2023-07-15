@@ -60,3 +60,13 @@ class CustomUser(AbstractBaseUser):
 
     def __str__(self):
         return str(self.id)
+
+
+class UserLocations(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="locations")
+    longitude = models.FloatField()
+    latitude = models.FloatField()
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name

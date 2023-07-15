@@ -1,12 +1,30 @@
 version: '3.3'
 
 volumes:
-  icecream_postgres_data: { }
-  icecream_postgres_data_backups: { }
-  production_django_media: {}
-
+  icecream_local_postgres_data: { }
+  icecream_local_postgres_data_backups: { }
 
 services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+
+    image: icecream_local_django
+    container_name: icecream_local_django
+    volumes:
+      - .:/app:z
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
+    command: /start
+    networks:
+      - tg_bot
+
+
   bot:
     image: "${BOT_IMAGE_NAME:-tg_bot-image}"
     container_name: "${BOT_CONTAINER_NAME:-tg_bot-container}"
@@ -15,49 +33,29 @@ services:
       context: .
     working_dir: "/usr/src/app/${BOT_NAME:-tg_bot}"
     volumes:
-    - .:/usr/src/app/${BOT_NAME:-tg_bot}
+      - .:/usr/src/app/${BOT_NAME:-tg_bot}
+    depends_on:
+      - django
     command: python3 -m bot
     restart: always
     env_file:
       - ".env"
     networks:
-    - tg_bot
-
-  django: &django
-    build:
-      context: .
-      dockerfile: ./compose/production/django/Dockerfile
-
-    image: medtour_production_django
-    volumes:
-      - production_django_media:/app/medtour/media
-    depends_on:
-      - postgres
-      - redis
-    env_file:
-      - ./.envs/.production/.django
-      - ./.envs/.production/.postgres
-    command: /start
+      - tg_bot
 
   postgres:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: icecream_production_postgres
+    container_name: icecream_local_postgres
     volumes:
-      - icecream_postgres_data:/var/lib/postgresql/data
-      - icecream_postgres_data_backups:/backups
+      - icecream_local_postgres_data:/var/lib/postgresql/data
+      - icecream_local_postgres_data_backups:/backups
     env_file:
       - .env
-  nginx:
-    build:
-      context: .
-      dockerfile: ./compose/production/nginx/Dockerfile
-    image: icecream_local_nginx
-    depends_on:
-      - django
-    volumes:
-      - production_django_media:/usr/share/nginx/media:ro
+    networks:
+      - tg_bot
 
 networks:
   tg_bot:

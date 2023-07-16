@@ -46,6 +46,7 @@ class GetCategoriesAPIView(generics.ListAPIView):
 
 
 class ProductsAPIView(mixins.ListModelMixin,
+                      mixins.UpdateModelMixin,
                       viewsets.GenericViewSet):
     serializer_class = ProductSerializer
     queryset = Product.objects.all()

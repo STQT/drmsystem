@@ -13,7 +13,7 @@ from tgbot.keyboards.reply import settings_buttons, menu_keyboards, get_verifica
 from tgbot.misc.geolocation import get_location_name_async
 from tgbot.misc.i18n import i18ns
 from tgbot.misc.states import MainMenuState, SettingsState, BuyState
-from tgbot.misc.utils import get_my_location_for_select
+from tgbot.misc.utils import get_my_location_for_select, get_shopping_cart
 
 _ = i18ns.gettext
 
@@ -89,8 +89,10 @@ async def get_category(m: Message, state: FSMContext, user_lang, db: Database):
                        reply_markup=menu_keyboards())
         await BuyState.get_location.set()
         return
-    await state.update_data(
-        category=m.text)
+    elif m.text == _("📥 Savat"):
+        await get_shopping_cart(m)
+        return
+    await state.update_data(category=m.text)
     products = await db.get_products(category=m.text, user_lang=user_lang)
     # TODO: rasm kerakmi?
     await m.answer(_("Muzqaymoqni tanlang"), reply_markup=generate_product_keyboard(products, user_lang))
@@ -104,30 +106,42 @@ async def get_product(m: Message, state: FSMContext, user_lang, db: Database):
                        reply_markup=generate_category_keyboard(categories, user_lang))
         await BuyState.get_category.set()
         return
-    await state.update_data(
-        category=m.text)
+    elif m.text == _("📥 Savat"):
+        await get_shopping_cart(m)
+        return
+
     product = await db.get_product(m.text, user_lang)
     if product:
-        await m.answer(_("Quyidagilardan birini tanlang"), reply_markup=only_cart_and_back_btns())
-        url = product['photo']
-        parsed_url = urlparse(url)
-        file_name: str = parsed_url.path.split("/")[-1] # noqa
-        with open("api/media/" + file_name, "rb") as file:
-            await m.answer_photo(
-                photo=file,
-                reply_markup=product_inline_kb()
-            )
+        await m.answer(_("Muzqaymoq sonini ko'rsating"), reply_markup=only_cart_and_back_btns())
+        await state.update_data(product=m.text, price=product['price'])
+        photo_uri = product.get("photo_uri")
+        if photo_uri:
+            await m.answer_photo(photo_uri, reply_markup=product_inline_kb(product_id=product['id']))
+        else:
+            url = product['photo']
+            parsed_url = urlparse(url)
+            file_name: str = parsed_url.path.split("/")[-1] # noqa
+            with open("media/" + file_name, "rb") as file:
+                photo_resp = await m.answer_photo(
+                    photo=file,
+                    reply_markup=product_inline_kb(product_id=product['id'])
+                )
+                await db.update_product(product['id'], {"photo_uri": photo_resp.photo[-1].file_id})
+        await BuyState.get_cart.set()
     else:
         await m.answer(_("Iltimos ro'yxatdagi maxsulotni tanlang"))
 
 
-# async def get_user_location(m: Message, state: FSMContext, user_lang):
-#     await state.update_data(longitude=m.location.longitude,
-#                             latitude=m.location.latitude)
-#     await m.answer(_("Bo'limni tanlang"), reply_markup=main_menu_keyboard(user_lang))
-#     data = await state.get_data()
-#     logging.info(data)
-#     await state.finish()
+async def get_cart(m: Message, state: FSMContext, user_lang, db: Database):
+    if m.text == _("⬅️ Ortga"):  # noqa
+        data = await state.get_data()
+        products = await db.get_products(data.get("category"), user_lang)
+        await m.answer(_("Muzqaymoq turini tanlang."),
+                       reply_markup=generate_category_keyboard(products, user_lang))
+        await BuyState.get_category.set()
+        return
+    elif m.text == _("📥 Savat"):
+        await get_shopping_cart(m)
 
 
 def register_menu(dp: Dispatcher):
@@ -135,3 +149,4 @@ def register_menu(dp: Dispatcher):
     dp.register_message_handler(menu, content_types=["text", "location"], state=BuyState.get_location)
     dp.register_message_handler(get_category, state=BuyState.get_category)
     dp.register_message_handler(get_product, state=BuyState.get_product)
+    dp.register_message_handler(get_cart, state=BuyState.get_cart)

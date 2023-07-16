@@ -14,10 +14,12 @@ class Category(models.Model):
 
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    price = models.IntegerField()
     photo = models.ImageField()
     name_uz = models.CharField(max_length=100)
     name_ru = models.CharField(max_length=100, blank=True, null=True)
     name_en = models.CharField(max_length=100, blank=True, null=True)
+    photo_uri = models.CharField(max_length=255, blank=True, null=True)
     massa = models.IntegerField(default=105)
     jirnost = models.IntegerField(default=15)
     temperature = models.IntegerField(default=18)
@@ -46,7 +48,7 @@ class CustomUser(AbstractBaseUser):
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'id'  # Using ID as the authentication field
-    REQUIRED_FIELDS = ['phone', 'fullname']  # Other required fields for creating a user
+    REQUIRED_FIELDS = ['fullname']  # Other required fields for creating a user
 
     def has_perm(self, perm, obj=None):
         return self.is_admin

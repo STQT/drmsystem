@@ -63,5 +63,5 @@ venv.bak/
 .env
 api/venv
 .ipython
-api/media
-api/staticfiles
+media
+staticfiles

@@ -15,6 +15,32 @@ def product_inline_kb(product_id, product_count=1):
     )
     inline_kb.add(
         InlineKeyboardButton(text=_("📥 Savatga qo'shish"),
-                             callback_data=f'add_to_cart_{str(product_count)}_{str(product_id)}'),
+                             callback_data=f'addtocart_{str(product_count)}_{str(product_id)}'),
+    )
+    return inline_kb
+
+
+def shopping_cart_kb():
+    inline_kb = InlineKeyboardMarkup(row_width=2)
+    inline_kb.add(
+        InlineKeyboardButton(text="🛒 Maxsulot qo'shish",
+                             callback_data='close'),
+        InlineKeyboardButton(text=_('🚖 Buyurtma berish'),
+                             callback_data='buy'),
+    )
+    inline_kb.add(
+        InlineKeyboardButton(text=_("🗑 Savatni tozalash"),
+                             callback_data=f'clean_trash'),
+    )
+    return inline_kb
+
+
+def shopping_cart_clean_kb():
+    inline_kb = InlineKeyboardMarkup(row_width=2)
+    inline_kb.add(
+        InlineKeyboardButton(text="☑️ Xa",
+                             callback_data='yes'),
+        InlineKeyboardButton(text=_("✖️ Yo'q"),
+                             callback_data='no'),
     )
     return inline_kb

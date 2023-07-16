@@ -103,5 +103,10 @@ class Database:
             else:
                 return None
 
+    async def update_product(self, product_id, data):
+        return await self.make_request(
+            "PATCH",
+            f"/products/{str(product_id)}/", data)
+
     async def close(self):
         await self.session.close()

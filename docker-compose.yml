@@ -3,6 +3,7 @@ version: '3.3'
 volumes:
   icecream_local_postgres_data: { }
   icecream_local_postgres_data_backups: { }
+  redis_data:
 
 services:
   django:
@@ -56,6 +57,16 @@ services:
       - icecream_local_postgres_data_backups:/backups
     env_file:
       - .env
+    networks:
+      - tg_bot
+
+  redis:
+    image: redis
+    ports:
+      - "6380:6380"
+    volumes:
+      - redis_data:/data
+    command: redis-server --port 6380 --appendonly yes
     networks:
       - tg_bot
 

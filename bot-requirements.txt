@@ -3,3 +3,4 @@ aioredis<2.0
 environs~=9.0
 itsdangerous==2.1.2
 geopy==2.3.0
+redis==4.6.0

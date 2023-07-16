@@ -23,3 +23,4 @@ class BuyState(StatesGroup):
     get_location = State()
     get_category = State()
     get_product = State()
+    get_cart = State()

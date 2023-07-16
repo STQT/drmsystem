@@ -1,10 +1,14 @@
+from django.http import Http404
+from django_filters import rest_framework as filters
 from rest_framework import mixins, viewsets, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.main.models import CustomUser, UserLocations, Category
-from api.main.serializers import UserSerializer, UserLocationsSerializer, CategorySerializer
+from .models import Category, Product
+from .serializers import UserSerializer, UserLocationsSerializer, CategorySerializer, ProductSerializer
 from django.contrib.auth import get_user_model
+
+from .models import UserLocations
 
 User = get_user_model()
 
@@ -39,3 +43,36 @@ class UserLocationsCreateAPIView(generics.CreateAPIView):
 class GetCategoriesAPIView(generics.ListAPIView):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
+
+
+class ProductsAPIView(mixins.ListModelMixin,
+                      viewsets.GenericViewSet):
+    serializer_class = ProductSerializer
+    queryset = Product.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = (
+        'category__name_uz',
+        'category__name_ru',
+        'category__name_en',
+    )
+
+
+class RetrieveProductAPIView(generics.RetrieveAPIView):
+    serializer_class = ProductSerializer
+    queryset = Product.objects.all()
+
+    def get_object(self):
+
+        queryset = self.get_queryset()
+
+        lang = self.kwargs['user_lang']
+        name = self.kwargs['name']
+        name_key = "name_" + lang
+        try:
+            return queryset.get(
+                **{name_key: name}
+            )
+        except Product.DoesNotExist:
+            raise Http404(
+                "No %s matches the given query." % Product._meta.object_name
+            )

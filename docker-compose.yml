@@ -12,10 +12,12 @@ services:
 
     image: icecream_local_django
     container_name: icecream_local_django
-    volumes:
-      - .:/app:z
     depends_on:
       - postgres
+    volumes:
+      - ./api:/app:z
+      - ./media:/media:z
+      - ./staticfiles:/staticfiles:z
     env_file:
       - .env
     ports:

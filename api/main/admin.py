@@ -1,8 +1,7 @@
 from django.contrib import admin
-from django.contrib.auth import admin as auth_admin
 from django.contrib.auth import get_user_model
 
-from api.main.models import Product, Category
+from .models import Product, Category
 
 User = get_user_model()
 

@@ -1,5 +1,3 @@
-import logging
-
 from aiohttp import ClientSession, ClientResponseError, ClientError
 
 
@@ -16,7 +14,6 @@ class Database:
                 if resp.status in [200, 201]:
                     return await resp.json()
                 else:
-                    response = await resp.json()
                     raise ClientResponseError(resp.request_info,
                                               resp.history,
                                               status=resp.status,
@@ -48,7 +45,8 @@ class Database:
             "user_lang": user_lang,
             "fullname": fullname
         }
-        return await self.make_request("PATCH", "/users/" + str(user_id) + "/", data)
+        return await self.make_request("PATCH",
+                                       "/users/" + str(user_id) + "/", data)
 
     async def get_user(self, username: str,
                        user_id: int,
@@ -71,10 +69,12 @@ class Database:
         return await self.make_request("GET", "/users/1/")
 
     async def get_user_locations(self, user_id):
-        return await self.make_request("GET", f"/users/{user_id}/get_locations/")
+        return await self.make_request("GET",
+                                       f"/users/{user_id}/get_locations/")
 
     async def delete_user_locations(self, user_id):
-        return await self.make_request("GET", f"/users/{user_id}/clear_locations/")
+        return await self.make_request("GET",
+                                       f"/users/{user_id}/clear_locations/")
 
     async def create_user_location(self, user_id, longitude, latitude, address):
         data = {
@@ -87,6 +87,21 @@ class Database:
 
     async def get_categories(self):
         return await self.make_request("GET", "/categories/")
+
+    async def get_products(self, category, user_lang):
+        return await self.make_request(
+            "GET",
+            f"/products/?category__name_{user_lang}={category}")
+
+    async def get_product(self, name, user_lang):
+        async with self.session.request(
+                "GET",
+                self.base_url + f"/product_by_name/{user_lang}/{name}"
+        ) as resp:
+            if resp.status in [200, 201]:
+                return await resp.json()
+            else:
+                return None
 
     async def close(self):
         await self.session.close()

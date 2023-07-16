@@ -9,6 +9,7 @@ from tgbot.config import load_config
 from tgbot.db.queries import Database
 from tgbot.filters.admin import AdminFilter
 from tgbot.handlers.admin import register_admin
+from tgbot.handlers.callback_query import register_callback
 from tgbot.handlers.echo import register_echo
 from tgbot.handlers.main_menu import register_menu
 from tgbot.handlers.settings import register_settings
@@ -35,6 +36,7 @@ def register_all_handlers(dp):
     register_user(dp)
     register_menu(dp)
     register_settings(dp)
+    register_callback(dp)
 
     register_echo(dp)
 

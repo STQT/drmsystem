@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from api.main.models import Category, Product, UserLocations
+from .models import Category, Product, UserLocations
 
 User = get_user_model()
 

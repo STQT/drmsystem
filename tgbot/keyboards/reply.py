@@ -66,9 +66,28 @@ def generate_category_keyboard(categories, user_lang):
     return keyboard
 
 
+def generate_product_keyboard(products, user_lang):
+    name_key = "name_" + user_lang
+    keyboard = ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+
+    for product in products:
+        button = KeyboardButton(product[name_key])
+        keyboard.insert(button)
+    keyboard.add(KeyboardButton(_("⬅️ Ortga")))
+
+    return keyboard
+
+
 def locations_buttons(locations):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     for location in locations:
         keyboard.add(KeyboardButton(text=location['name']))
     keyboard.add(KeyboardButton(text=_("⬅️ Ortga")))
+    return keyboard
+
+
+def only_cart_and_back_btns():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(_("📥 Savat")))
+    keyboard.add(KeyboardButton(_("⬅️ Ortga")))
     return keyboard

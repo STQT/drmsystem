@@ -1,3 +1,5 @@
+import os
+
 import environ
 from pathlib import Path
 
@@ -29,8 +31,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
-    "api.main",
-    "api.orders",
+    "main",
+    "orders",
 ]
 
 MIDDLEWARE = [
@@ -43,7 +45,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "api.urls"
+ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
     {
@@ -61,7 +63,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "api.wsgi.application"
+WSGI_APPLICATION = "core.wsgi.application"
 
 
 # Database
@@ -115,7 +117,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = str(BASE_DIR / "staticfiles")
+print(STATIC_ROOT)
+MEDIA_ROOT = str(BASE_DIR / "media")
+# https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+MEDIA_URL = "/media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

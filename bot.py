@@ -51,7 +51,7 @@ async def main():
     if config.tg_bot.debug is False:
         import sentry_sdk
         from sentry_sdk.integrations.asyncio import AsyncioIntegration
-        sentry_sdk.init(dsn=config.misc.sentry_sdk, integrations=[AsyncioIntegration()])
+        sentry_sdk.init(dsn=config.misc.sentry_dsn, integrations=[AsyncioIntegration()])
 
     storage = RedisStorage2(host="redis", port=6380, db=0)
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')

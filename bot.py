@@ -10,6 +10,7 @@ from tgbot.handlers.admin import register_admin
 from tgbot.handlers.callback_query import register_callback
 from tgbot.handlers.echo import register_echo
 from tgbot.handlers.main_menu import register_menu
+from tgbot.handlers.review import register_review
 from tgbot.handlers.settings import register_settings
 from tgbot.handlers.user_start import register_user
 from tgbot.middlewares.acl import ACLMiddleware
@@ -32,6 +33,7 @@ def register_all_filters(dp):
 def register_all_handlers(dp):
     register_admin(dp)
     register_user(dp)
+    register_review(dp)
     register_menu(dp)
     register_settings(dp)
     register_callback(dp)
@@ -47,8 +49,7 @@ async def main():
     logger.info("Starting bot")
     config = load_config(".env")
 
-    storage = RedisStorage2(host="redis",
-                            port=6380, db=0)
+    storage = RedisStorage2(host="redis", port=6380, db=0)
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     dp = Dispatcher(bot, storage=storage)
     logging.info(config)

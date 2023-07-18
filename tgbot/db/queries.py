@@ -1,7 +1,10 @@
+import logging
+
 from aiohttp import ClientSession, ClientResponseError, ClientError
 
 
 class Database:
+    DELIVERY_COST = "10000"
     def __init__(self, base_url):
         self.base_url = base_url
         self.session = ClientSession(trust_env=True)
@@ -11,6 +14,8 @@ class Database:
 
         try:
             async with self.session.request(method, url, json=data) as resp:
+                # r = await resp.json()
+                # logging.info(r)
                 if resp.status in [200, 201]:
                     return await resp.json()
                 else:

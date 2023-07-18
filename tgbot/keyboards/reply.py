@@ -12,6 +12,13 @@ def language_keyboards():
     return keyboard
 
 
+def get_contact_keyboard():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(_("📞 Mening raqamim"), request_contact=True))
+    keyboard.add(KeyboardButton(_("⬅️ Ortga")))
+    return keyboard
+
+
 def main_menu_keyboard(locale):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(KeyboardButton(text=_("Menyu", locale=locale)))
@@ -90,4 +97,26 @@ def only_cart_and_back_btns():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(KeyboardButton(_("📥 Savat")))
     keyboard.add(KeyboardButton(_("⬅️ Ortga")))
+    return keyboard
+
+
+def payment_method_btns():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(_("Naqd pul")))
+    keyboard.add(KeyboardButton(_("Click")))
+    keyboard.add(KeyboardButton(_("Payme")))
+    keyboard.add(KeyboardButton(_("⬅️ Ortga")))
+    return keyboard
+
+
+def approve_btns():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(_("✅ Tasdiqlash")))
+    keyboard.add(KeyboardButton(_("❌ Bekor qilish")))
+    return keyboard
+
+
+def cancel_btn():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton(_("❌ Bekor qilish")))
     return keyboard

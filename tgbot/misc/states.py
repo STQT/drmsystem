@@ -24,3 +24,10 @@ class BuyState(StatesGroup):
     get_category = State()
     get_product = State()
     get_cart = State()
+    get_phone = State()
+    get_payment_method = State()
+    get_approve = State()
+
+
+class ReviewState(StatesGroup):
+    get_review = State()

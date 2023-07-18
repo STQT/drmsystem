@@ -7,7 +7,8 @@ from aiogram.types import CallbackQuery, Message
 from tgbot.db.queries import Database
 from tgbot.db.redis_db import get_redis
 from tgbot.keyboards.inline import product_inline_kb, shopping_cart_clean_kb
-from tgbot.keyboards.reply import generate_product_keyboard, generate_category_keyboard, menu_keyboards
+from tgbot.keyboards.reply import generate_product_keyboard, generate_category_keyboard, menu_keyboards, \
+    get_contact_keyboard
 from tgbot.misc.i18n import i18ns
 from tgbot.misc.states import BuyState
 from tgbot.misc.utils import get_shopping_cart
@@ -71,8 +72,16 @@ async def add_to_cart(callback_query: CallbackQuery, state: FSMContext, user_lan
 
 async def buy_cart(callback_query: CallbackQuery):
     # Show count logic here
-    # TODO: integrations phone getting and billing
-    await callback_query.answer(_("ta"))
+    await callback_query.answer()
+    await callback_query.message.answer(
+        _("Telefon raqamingizni quyidagi formatda "
+          "yuboring yoki kiriting: +998 ** *** ** **\n"
+          "Eslatma: Agar siz onlayn buyurtma uchun Click "
+          "yoki Payme orqali toʻlashni rejalashtirmoqchi "
+          "boʻlsangiz, tegishli xizmatda hisob qaydnomasi "
+          "roʻyxatdan oʻtgan telefon raqamini koʻrsating."),
+        reply_markup=get_contact_keyboard())
+    await BuyState.get_phone.set()
 
 
 async def close_cart(callback_query: CallbackQuery):
@@ -97,14 +106,14 @@ async def yes_clean(callback_query: CallbackQuery):
     await callback_query.answer(_("Tozalandi"))
     await callback_query.message.delete()
     await callback_query.message.answer(_("📍 Geolokatsiyani yuboring yoki yetkazib berish manzilini tanlang"),
-                                           reply_markup=menu_keyboards())
+                                        reply_markup=menu_keyboards())
     await BuyState.get_location.set()
 
 
-async def no_clean(callback_query: CallbackQuery):
+async def no_clean(callback_query: CallbackQuery, db: Database):
     await callback_query.answer()
     await callback_query.message.delete()
-    await get_shopping_cart(callback_query.message)
+    await get_shopping_cart(callback_query.message, db)
 
 
 def register_callback(dp: Dispatcher):

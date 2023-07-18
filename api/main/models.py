@@ -20,6 +20,7 @@ class Product(models.Model):
     name_ru = models.CharField(max_length=100, blank=True, null=True)
     name_en = models.CharField(max_length=100, blank=True, null=True)
     photo_uri = models.CharField(max_length=255, blank=True, null=True)
+    photo_updated = models.BooleanField(default=False)
     massa = models.IntegerField(default=105)
     jirnost = models.IntegerField(default=15)
     temperature = models.IntegerField(default=18)
@@ -36,9 +37,18 @@ class Product(models.Model):
     def __str__(self):
         return self.name_uz
 
+    def save(self, *args, **kwargs):
+        # Check if the photo field has changed
+        if self.pk is not None:
+            original_photo = Product.objects.get(pk=self.pk).photo
+            if original_photo and original_photo != self.photo:
+                self.photo_updated = True
+
+        super(Product, self).save(*args, **kwargs)
+
 
 class CustomUser(AbstractBaseUser):
-    id = models.IntegerField(primary_key=True)  # Using ID as primary key
+    id = models.PositiveBigIntegerField(primary_key=True)  # Using ID as primary key
     username = models.CharField(max_length=150, null=True)
     fullname = models.CharField(max_length=255)
     user_lang = models.CharField(max_length=2, default='uz')

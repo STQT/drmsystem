@@ -48,35 +48,8 @@ async def get_user_lang(m: Message, state: FSMContext, db: Database):
     await m.answer(_("Bo'limni tanlang", locale=language),
                    reply_markup=main_menu_keyboard(language))
     await MainMenuState.get_menu.set()
-    # await m.answer(_("Iltimos telefon raqamingizni kiriting yoki tugmacha orqali yuboring"),
-    #                reply_markup=ReplyKeyboardMarkup(resize_keyboard=True).add(
-    #                    KeyboardButton(_("Kontaktni yuborish 📱"), request_contact=True)))
-    # await UserRegisterState.get_contact.set()
-
-
-# async def get_user_contact(m: Message, state: FSMContext, user_lang, db: Database):
-#     if m.contact.user_id != m.from_user.id:
-#         await m.answer(_("Iltimos ushbu telegram akauntga biriktirilgan telefon raqamini jo'nating"))
-#         return
-#     await state.update_data(contact=m.contact.phone_number)
-#
-#     data = await state.get_data()
-#
-#     await db.reg_user(
-#         first_name=m.from_user.first_name,
-#         user_id=m.from_user.id,
-#         username=m.from_user.username,
-#         contact=m.contact.phone_number,
-#         user_lang=data['lang']
-#     )
-#     logging.info(data)
-#     logging.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-#     await state.finish()
-#     await m.answer(_("Bo'limni tanlang"), reply_markup=main_menu_keyboard(user_lang))
-#     await MainMenuState.get_menu.set()
 
 
 def register_user(dp: Dispatcher):
     dp.register_message_handler(user_start, commands=["start"], state="*")
     dp.register_message_handler(get_user_lang, state=UserRegisterState.get_lang)
-    # dp.register_message_handler(get_user_contact, content_types='contact', state=UserRegisterState.get_contact)

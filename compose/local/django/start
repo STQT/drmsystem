@@ -3,7 +3,11 @@
 set -o errexit
 set -o pipefail
 set -o nounset
-
+echo "DEBUG environment variable: $DEBUG"
 
 python manage.py migrate
-exec python manage.py runserver 0.0.0.0:8000
+if [ "$DJANGO_DEBUG" = "true" ]; then
+  exec python manage.py runserver 0.0.0.0:8000
+else
+  exec gunicorn core.wsgi:application --bind 0.0.0.0:8000
+fi

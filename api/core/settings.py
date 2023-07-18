@@ -15,7 +15,7 @@ env = environ.Env()
 SECRET_KEY = "django-insecure-92k=)&8m514f=26%01u+fkf$0$-kce^uc66zqrsg=0kqm8b^h5"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DJANGO_DEBUG", default=True)
 
 ALLOWED_HOSTS = ["localhost", "django", "icecreambot.itlink.uz"]
 
@@ -128,3 +128,101 @@ MEDIA_URL = "/media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'main.CustomUser'
+BOT_USERNAME = env("BOT_USERNAME", default="kaireke_sultan")
+
+# ADMIN
+# ------------------------------------------------------------------------------
+# Django Admin URL regex.
+ADMIN_URL = env("ADMIN_URL")
+if DEBUG is False:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+        from sentry_sdk.integrations.logging import LoggingIntegration
+    except ImportError:
+        ...
+    from .settings import *  # noqa
+
+    # GENERAL
+    # ------------------------------------------------------------------------------
+
+    # SECURITY
+    # ------------------------------------------------------------------------------
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-proxy-ssl-header
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-ssl-redirect
+    SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
+    # https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-secure
+    SESSION_COOKIE_SECURE = True
+    # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-secure
+    # CSRF_COOKIE_SECURE = True
+    # https://docs.djangoproject.com/en/dev/topics/security/#ssl-https
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-seconds
+    # TODO: set this to 60 seconds first and then to 518400 once you prove the former works
+    SECURE_HSTS_SECONDS = 518400
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-include-subdomains
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+        "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True
+    )
+    # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-preload
+    SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)
+    # https://docs.djangoproject.com/en/dev/ref/middleware/#x-content-type-options-nosniff
+    SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
+        "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True
+    )
+
+    # EMAIL
+    # ------------------------------------------------------------------------------
+    # https://docs.djangoproject.com/en/dev/ref/settings/#default-from-email
+    # https://docs.djangoproject.com/en/dev/ref/settings/#server-email
+    # https://docs.djangoproject.com/en/dev/ref/settings/#email-subject-prefix
+    EMAIL_SUBJECT_PREFIX = env(
+        "DJANGO_EMAIL_SUBJECT_PREFIX",
+        default="[Svitlogorie.ru]",
+    )
+
+
+    # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
+    # https://anymail.readthedocs.io/en/stable/installation/#anymail-settings-reference
+    # https://anymail.readthedocs.io/en/stable/esps
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+    # LOGGING
+    # ------------------------------------------------------------------------------
+    # https://docs.djangoproject.com/en/dev/ref/settings/#logging
+    # See https://docs.djangoproject.com/en/dev/topics/logging for
+    # more details on how to customize your logging configuration.
+
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": True,
+        "formatters": {
+            "verbose": {
+                "format": "%(levelname)s %(asctime)s %(module)s "
+                          "%(process)d %(thread)d %(message)s"
+            }
+        },
+        "handlers": {
+            "console": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
+                "formatter": "verbose",
+            }
+        },
+        "root": {"level": "INFO", "handlers": ["console"]},
+        "loggers": {
+            "django.db.backends": {
+                "level": "ERROR",
+                "handlers": ["console"],
+                "propagate": False,
+            },
+            # Errors logged by the SDK itself
+            "sentry_sdk": {"level": "ERROR", "handlers": ["console"], "propagate": False},
+            "django.security.DisallowedHost": {
+                "level": "ERROR",
+                "handlers": ["console"],
+                "propagate": False,
+            },
+        },
+    }
+

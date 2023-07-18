@@ -1,18 +1,18 @@
 version: '3.3'
 
 volumes:
-  icecream_local_postgres_data: { }
-  icecream_local_postgres_data_backups: { }
-  redis_data:
+  icecream_production_postgres_data: { }
+  icecream_production_postgres_data_backups: { }
+  icecream_redis_data:
 
 services:
   django:
     build:
       context: .
-      dockerfile: ./compose/local/django/Dockerfile
+      dockerfile: ./compose/production/django/Dockerfile
 
-    image: icecream_local_django
-    container_name: icecream_local_django
+    image: icecream_production_django
+    container_name: icecream_production_django
     depends_on:
       - postgres
     volumes:
@@ -20,11 +20,11 @@ services:
       - ./media:/media:z
       - ./staticfiles:/staticfiles:z
     env_file:
-      - .env
+      - ./.env
     ports:
       - '8040:8000'
     environment:
-      - DEBUG=false  # Set the DEBUG environment variable
+      - DEBUG=true  # Set the DEBUG environment variable
     command: /start
     networks:
       - tg_bot
@@ -52,11 +52,11 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
-    image: icecream_production_postgres
-    container_name: icecream_local_postgres
+    image: icecream_production_postgres_image
+    container_name: icecream_production_postgres
     volumes:
-      - icecream_local_postgres_data:/var/lib/postgresql/data
-      - icecream_local_postgres_data_backups:/backups
+      - icecream_production_postgres_data:/var/lib/postgresql/data
+      - icecream_production_postgres_data_backups:/backups
     env_file:
       - .env
     networks:
@@ -67,7 +67,7 @@ services:
     ports:
       - "6380:6380"
     volumes:
-      - redis_data:/data
+      - icecream_redis_data:/data
     command: redis-server --port 6380 --appendonly yes
     networks:
       - tg_bot

@@ -21,10 +21,7 @@ class TgBot:
 class Miscellaneous:
     payme: str
     click: str
-    sentry_sdk: str
-    sms_url: str
-    sms_login: str
-    sms_pass: str
+    sentry_dsn: str
 
 
 @dataclass
@@ -51,10 +48,7 @@ def load_config(path: str = None):
         misc=Miscellaneous(
             payme=env.str('PAYME'),
             click=env.str('CLICK'),
-            sentry_sdk=env.str('BOT_SENTRY_SDK'),
-            sms_url=env.str('SMS_URL'),
-            sms_login=env.str('SMS_LOGIN'),
-            sms_pass=env.str('SMS_PASS')
+            sentry_dsn=env.str('BOT_SENTRY_DSN'),
         )
     )
 

@@ -4,21 +4,16 @@ from django.db import models
 
 
 class Order(models.Model):
-    class PaymentMethods(models.TextChoices):
-        CLICK = 'click', "Click UZ"
-        PAYME = 'payme', "PayMe"
-        CASH = 'cash', "Cash"
-
     id = models.UUIDField(editable=False, primary_key=True, default=uuid4)
     check_id = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
     phone = models.CharField(max_length=20)
-    payment_method = models.CharField(max_length=10, choices=PaymentMethods.choices, default=PaymentMethods.CASH)
+    payment_method = models.CharField(max_length=30)
     cost = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.id
+        return self.check_id
 
 
 class OrderProduct(models.Model):
@@ -27,4 +22,4 @@ class OrderProduct(models.Model):
     count = models.IntegerField(default=1)
 
     def __str__(self):
-        return f"{self.product.name_uz}, count={self.count}, order={self.order.id}"
+        return f"{self.product.name_uz}, count={self.count}"

@@ -17,12 +17,19 @@ async def get_user_shopping_cart(user_id):
     return decoded_cart_items
 
 
+def get_cart_items_dict(cart_items):
+    items = []
+    for item_key, price in cart_items.items():
+        item_name, count = item_key.split(":")
+        items.append({'name': item_name, 'count': count})
+    return items
+
+
 def get_cart_items_text(cart_items):
+    logging.info(cart_items.items(), "###########################")
     cart_items_text = ""
     total_price = 0
     for item_key, price in cart_items.items():
-        logging.info(item_key)
-        logging.info(price)
         item_name, count = item_key.split(":")
         item_price = int(price)
         item_total_price = item_price * int(count)

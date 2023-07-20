@@ -3,11 +3,11 @@ import os
 
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message
+from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, ContentTypes
 from urllib.parse import urlparse
 
 from tgbot.db.queries import Database
-from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text
+from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text, get_cart_items_dict
 from tgbot.keyboards.inline import product_inline_kb, shopping_cart_kb
 from tgbot.keyboards.reply import settings_buttons, menu_keyboards, get_verification, \
     generate_category_keyboard, generate_product_keyboard, only_cart_and_back_btns, main_menu_keyboard, \
@@ -35,6 +35,7 @@ async def main_menu(m: Message, user_lang, state: FSMContext, db: Database):
         await SettingsState.get_buttons.set()
     else:
         await m.answer(_("Mavjud bo'lmagan buyruq!"))
+        await state.finish()
 
 
 async def menu(m: Message, user_lang, state: FSMContext, db: Database):
@@ -215,18 +216,59 @@ async def get_payment_method(m: Message, state: FSMContext, user_lang, db: Datab
                     cost=int(db.DELIVERY_COST) + total_price
                 ),
                 reply_markup=approve_btns())
-        await BuyState.get_payment_method.set()
+            await state.update_data(cost=int(db.DELIVERY_COST) + total_price)
+        await BuyState.get_approve.set()
 
 
-async def get_approve(m: Message, state: FSMContext, user_lang, db: Database):
+async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, config):
     if m.text == _("❌ Bekor qilish"):  # noqa
-        await m.answer(_("Bo'limni tanlang", locale=user_lang),
+        await m.answer(_("Bo'limni tanlang.", locale=user_lang),
                        reply_markup=main_menu_keyboard(user_lang))
     else:
-        ...
-        await m.answer(_("Buyurtma raqami"), reply_markup=main_menu_keyboard(user_lang))
-    await MainMenuState.get_menu.set()
-    await state.finish()
+        data = await state.get_data()
+        photo = (
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgWGCXrpS2g54YYm0eTzAHHFzY7Kj3ZXEcbg&usqp=CAU"
+            if m.text == "Click" else "https://synthesis.uz/wp-content/uploads/2022/01/payme-1920x1080-1.jpg")
+        token = None
+        price = None
+        if data["payment_method"] == "Click":
+            price = LabeledPrice(label="Click orqali to'lov", amount=data["cost"] * 100)
+            token = config.misc.click
+        elif data["payment_method"] == "Payme":
+            price = LabeledPrice(label="Payme orqali to'lov", amount=data["cost"] * 100)
+            token = config.misc.payme
+
+        invoice_data = {
+            "chat_id": m.from_user.id,
+            "photo_url": photo,
+            "currency": "uzs",
+            "title": "Svitlogorie",
+            "description": "Muzqaymoqlar haridi",
+            "payload": "service-cart-payment",
+            "provider_token": token,
+            "prices": [price]
+        }
+        if invoice_data.get("provider_token"):
+            await m.answer(_("Iltimos, quyidagi to'lovni amalga oshiring 👇"),
+                           reply_markup=main_menu_keyboard(user_lang))
+            await m.bot.send_invoice(**invoice_data)
+        else:
+            await m.answer("Siz bilan bog'lanishadi", reply_markup=main_menu_keyboard(user_lang))
+            ...
+            await state.finish()
+            await MainMenuState.get_menu.set()
+
+
+async def pre_checkout_query(query: PreCheckoutQuery):
+    await query.bot.answer_pre_checkout_query(query.id, ok=True)
+
+
+async def success_payment(m: Message, config, user_lang, state: FSMContext):
+    data = await state.get_data()
+    cart_items = await get_user_shopping_cart(m.from_user.id)
+    items: list[dict] = get_cart_items_dict(cart_items)
+
+    await m.answer(_("Sizning to'lovingiz muvaffaqiyatli o'tdi. Kuryer siz bilan bog'lanadi!"))
 
 
 def register_menu(dp: Dispatcher):
@@ -238,3 +280,6 @@ def register_menu(dp: Dispatcher):
     dp.register_message_handler(get_phone, content_types=["text", "contact"], state=BuyState.get_phone)
     dp.register_message_handler(get_payment_method, state=BuyState.get_payment_method)
     dp.register_message_handler(get_approve, state=BuyState.get_approve)
+    dp.register_pre_checkout_query_handler(pre_checkout_query, state="*")
+    dp.register_message_handler(success_payment, content_types=ContentTypes.SUCCESSFUL_PAYMENT,
+                                state="*")

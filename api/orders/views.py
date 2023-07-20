@@ -1,13 +1,10 @@
 from rest_framework import mixins, viewsets
 
-from .serializers import UserSerializer
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from .models import Order
+from .serializers import OrderSerializer
 
 
-class UserViewSet(mixins.RetrieveModelMixin,
-                  mixins.UpdateModelMixin,
-                  viewsets.GenericViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
+class OrderViewSet(mixins.CreateModelMixin,
+                   viewsets.GenericViewSet):
+    serializer_class = OrderSerializer
+    queryset = Order.objects.all()

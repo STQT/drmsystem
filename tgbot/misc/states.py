@@ -27,6 +27,7 @@ class BuyState(StatesGroup):
     get_phone = State()
     get_payment_method = State()
     get_approve = State()
+    get_billing = State()
 
 
 class ReviewState(StatesGroup):

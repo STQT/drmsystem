@@ -5,6 +5,8 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 from main.views import (UserViewSet, UserLocationsCreateAPIView, GetCategoriesAPIView, ProductsAPIView,  # noqa
                         RetrieveProductAPIView)  # noqa
 
+from orders.views import OrderViewSet # noqa
+
 if settings.DEBUG:
     router = DefaultRouter()
 else:
@@ -13,6 +15,7 @@ else:
 # USERS
 router.register("users", UserViewSet)
 router.register("products", ProductsAPIView)
+router.register("orders", OrderViewSet)
 
 app_name = "v1"
 urlpatterns = router.urls

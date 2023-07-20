@@ -113,5 +113,8 @@ class Database:
             "PATCH",
             f"/products/{str(product_id)}/", data)
 
+    async def create_order(self, data):
+        return await self.make_request("POST", "/orders/", data)
+
     async def close(self):
         await self.session.close()

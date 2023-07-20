@@ -17,7 +17,7 @@ async def get_user_shopping_cart(user_id):
     return decoded_cart_items
 
 
-def get_cart_items_dict(cart_items):
+def get_cart_items_list(cart_items):
     items = []
     for item_key, price in cart_items.items():
         item_name, count = item_key.split(":")
@@ -37,3 +37,9 @@ def get_cart_items_text(cart_items):
         cart_items_text += f"{count} ✖️ {item_name} {item_price} so'm\n"
 
     return cart_items_text, total_price
+
+
+async def clear_user_shopping_cart(user_id):
+    redis = await get_redis()
+    key = f"shopping_cart:{user_id}"
+    await redis.delete(key)

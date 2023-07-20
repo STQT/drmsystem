@@ -7,7 +7,8 @@ from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, ContentTypes
 from urllib.parse import urlparse
 
 from tgbot.db.queries import Database
-from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text, get_cart_items_dict
+from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text, get_cart_items_list, \
+    clear_user_shopping_cart
 from tgbot.keyboards.inline import product_inline_kb, shopping_cart_kb
 from tgbot.keyboards.reply import settings_buttons, menu_keyboards, get_verification, \
     generate_category_keyboard, generate_product_keyboard, only_cart_and_back_btns, main_menu_keyboard, \
@@ -15,7 +16,7 @@ from tgbot.keyboards.reply import settings_buttons, menu_keyboards, get_verifica
 from tgbot.misc.geolocation import get_location_name_async
 from tgbot.misc.i18n import i18ns
 from tgbot.misc.states import MainMenuState, SettingsState, BuyState, ReviewState
-from tgbot.misc.utils import get_my_location_for_select, get_shopping_cart
+from tgbot.misc.utils import get_my_location_for_select, get_shopping_cart, collect_data_for_request
 
 _ = i18ns.gettext
 
@@ -250,11 +251,25 @@ async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, co
         }
         if invoice_data.get("provider_token"):
             await m.answer(_("Iltimos, quyidagi to'lovni amalga oshiring 👇"),
-                           reply_markup=main_menu_keyboard(user_lang))
+                           reply_markup=types.ReplyKeyboardRemove(selective=True))
             await m.bot.send_invoice(**invoice_data)
         else:
             await m.answer("Siz bilan bog'lanishadi", reply_markup=main_menu_keyboard(user_lang))
-            ...
+            cart_items = await get_user_shopping_cart(m.from_user.id)
+
+            order_data = collect_data_for_request(
+                data,
+                cart_items,
+                user_lang,
+            )
+            try:
+                await db.create_order(order_data)
+                await m.answer("Siz bilan bog'lanishadi", reply_markup=main_menu_keyboard(user_lang))
+            except Exception as _e:
+                await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
+                               reply_markup=main_menu_keyboard(user_lang))
+                await clear_user_shopping_cart(m.from_user.id)
+
             await state.finish()
             await MainMenuState.get_menu.set()
 
@@ -263,12 +278,24 @@ async def pre_checkout_query(query: PreCheckoutQuery):
     await query.bot.answer_pre_checkout_query(query.id, ok=True)
 
 
-async def success_payment(m: Message, config, user_lang, state: FSMContext):
+async def success_payment(m: Message, config, user_lang, state: FSMContext, db: Database):
     data = await state.get_data()
     cart_items = await get_user_shopping_cart(m.from_user.id)
-    items: list[dict] = get_cart_items_dict(cart_items)
 
-    await m.answer(_("Sizning to'lovingiz muvaffaqiyatli o'tdi. Kuryer siz bilan bog'lanadi!"))
+    order_data = collect_data_for_request(
+        data,
+        cart_items,
+        user_lang,
+        m.successful_payment.provider_payment_charge_id
+    )
+    try:
+        await db.create_order(order_data)
+        await m.answer(_("Sizning to'lovingiz muvaffaqiyatli o'tdi. Kuryer siz bilan bog'lanadi!"),
+                       reply_markup=main_menu_keyboard(user_lang))
+    except Exception as _e:
+        await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
+                       reply_markup=main_menu_keyboard(user_lang))
+        await clear_user_shopping_cart(m.from_user.id)
 
 
 def register_menu(dp: Dispatcher):

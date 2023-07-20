@@ -18,7 +18,7 @@ class Order(models.Model):
 
 class OrderProduct(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="order_products")
-    product = models.ForeignKey("main.Product", on_delete=models.CASCADE, related_name="order_products")
+    product = models.ForeignKey("main.Product", on_delete=models.PROTECT, related_name="order_products")
     count = models.IntegerField(default=1)
 
     def __str__(self):

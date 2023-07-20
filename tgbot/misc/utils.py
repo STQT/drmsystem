@@ -3,7 +3,7 @@ import logging
 from aiogram import types
 
 from tgbot.db.queries import Database
-from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text
+from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text, get_cart_items_list
 from tgbot.keyboards.inline import shopping_cart_kb
 from tgbot.keyboards.reply import address_clear, back_button, locations_buttons
 from tgbot.misc.i18n import i18ns
@@ -52,3 +52,24 @@ async def get_shopping_cart(m: types.Message, db: Database):
                 cost=int(db.DELIVERY_COST) + total_price
             ),
             reply_markup=shopping_cart_kb())
+
+
+def collect_data_for_request(data, cart_items, user_lang, check_id=None):
+    order_data = {
+        "address": data["address"],
+        "check_id": check_id if check_id else "Naqd pul",
+        "phone": data["contact"],
+        "payment_method": data["payment_method"],
+        "cost": data["cost"],
+    }
+    product_list: list[dict] = get_cart_items_list(cart_items)
+    items_list = []
+    for item in product_list:
+        items_list.append({
+            "product_lang": user_lang,
+            "product_name": item["name"],
+            "count": item["count"]
+        })
+    order_data.update({"products": items_list})
+    logging.info(order_data)
+    return order_data

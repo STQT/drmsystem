@@ -115,7 +115,15 @@ class Database:
             f"/products/{str(product_id)}/", data)
 
     async def create_order(self, data):
-        return await self.make_request("POST", "/orders/", data)
+        url = self.base_url + "/orders/"
+        headers = {"Content-Type": "application/json"}
+        async with ClientSession() as session:
+            async with session.post(url, headers=headers, json=data) as response:
+                if response.status in [200, 201]:
+                    result = await response.json()
+                    return result
+                else:
+                    return None
 
     async def close(self):
         await self.session.close()

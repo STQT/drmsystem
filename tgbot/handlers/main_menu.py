@@ -307,7 +307,8 @@ async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, co
             except Exception as _e:
                 await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
                                reply_markup=main_menu_keyboard(user_lang))
-                await clear_user_shopping_cart(m.from_user.id)
+
+            await clear_user_shopping_cart(m.from_user.id)
 
             await state.finish()
             await MainMenuState.get_menu.set()
@@ -336,7 +337,9 @@ async def success_payment(m: Message, config: Config, user_lang, state: FSMConte
     except Exception as _e:
         await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
                        reply_markup=main_menu_keyboard(user_lang))
-        await clear_user_shopping_cart(m.from_user.id)
+    await clear_user_shopping_cart(m.from_user.id)
+    await state.finish()
+    await MainMenuState.get_menu.set()
 
 
 def register_menu(dp: Dispatcher):

@@ -292,7 +292,6 @@ async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, co
                            reply_markup=types.ReplyKeyboardRemove(selective=True))
             await m.bot.send_invoice(**invoice_data)
         else:
-            await m.answer("Siz bilan bog'lanishadi", reply_markup=main_menu_keyboard(user_lang))
             cart_items = await get_user_shopping_cart(m.from_user.id)
 
             order_data = collect_data_for_request(
@@ -302,8 +301,8 @@ async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, co
             )
             try:
                 await db.create_order(order_data)
-                _cart_items_text, total_price = get_cart_items_text(cart_items)
-                await send_to_group_order(m, config, data, cart_items, total_price, db)
+                cart_items_text, total_price = get_cart_items_text(cart_items)
+                await send_to_group_order(m, config, data, cart_items_text, total_price, db)
                 await m.answer("Siz bilan bog'lanishadi", reply_markup=main_menu_keyboard(user_lang))
             except Exception as _e:
                 await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
@@ -330,8 +329,8 @@ async def success_payment(m: Message, config: Config, user_lang, state: FSMConte
     )
     try:
         await db.create_order(order_data)
-        _cart_items_text, total_price = get_cart_items_text(cart_items)
-        await send_to_group_order(m, config, data, cart_items, total_price, db)
+        cart_items_text, total_price = get_cart_items_text(cart_items)
+        await send_to_group_order(m, config, data, cart_items_text, total_price, db)
         await m.answer(_("Sizning to'lovingiz muvaffaqiyatli o'tdi. Kuryer siz bilan bog'lanadi!"),
                        reply_markup=main_menu_keyboard(user_lang))
     except Exception as _e:

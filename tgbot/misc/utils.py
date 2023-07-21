@@ -87,12 +87,13 @@ async def send_to_group_order(m: Message, config: Config, data, cart_items_text,
     await m.bot.send_message(
         config.tg_bot.group_id,
         _(
-            "Sizning buyurtmangiz:\n"
+            "Yangi buyurtma:\n"
             "Manzil: {address}\n\n"
             "{cart_items_text}\n"
             "To'lov turi: {payment_method}\n\n"
             "Mahsulotlar: {total_price} so'm\n"
             "Yetkazib berish: {delivery} so'm\n"
+            "Telefon raqam: {phone}"
             "Jami: {cost} so'm"
         ).format(
             address=data["address"],
@@ -100,5 +101,6 @@ async def send_to_group_order(m: Message, config: Config, data, cart_items_text,
             cart_items_text=cart_items_text,
             total_price=total_price,
             delivery=db.DELIVERY_COST,
+            phone=data['phone'],
             cost=int(db.DELIVERY_COST) + total_price
         ))

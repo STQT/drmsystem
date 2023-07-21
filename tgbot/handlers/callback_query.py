@@ -5,7 +5,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from tgbot.db.queries import Database
-from tgbot.db.redis_db import get_redis
+from tgbot.db.redis_db import get_redis, close_redis
 from tgbot.keyboards.inline import product_inline_kb, shopping_cart_clean_kb
 from tgbot.keyboards.reply import generate_product_keyboard, generate_category_keyboard, menu_keyboards, \
     get_contact_keyboard
@@ -48,16 +48,18 @@ async def add_to_cart(callback_query: CallbackQuery, state: FSMContext, user_lan
     _cart, count, product_id = callback_query.data.split('_')
     await callback_query.answer("Added to cart")
     await callback_query.message.edit_caption(_("Qo'shildi: {count} ta").format(count=count))
+    data = await state.get_data()
+
     redis = await get_redis()
     key = f"shopping_cart:{callback_query.from_user.id}"
-
-    data = await state.get_data()
     category = data.get("category")
     try:
         item_key = f"{data['product']}:{count}"
         await redis.hset(key, item_key, data['price'])
     except Exception as _e:  # noqa
         await callback_query.message.answer(_("Server bilan ulanishda muammo bo'ldi. Boshidan uruning"))
+    finally:
+        await close_redis(redis)
     if category:
         products = await db.get_products(category=category, user_lang=user_lang)
         await callback_query.message.answer(_("Muzqaymoqni tanlang"),
@@ -101,8 +103,11 @@ async def yes_clean(callback_query: CallbackQuery):
     redis = await get_redis()
     key = f"shopping_cart:{callback_query.from_user.id}"
 
-    # Delete the entire cart from Redis
-    await redis.delete(key)
+    try:
+        # Delete the entire cart from Redis
+        await redis.delete(key)
+    finally:
+        await close_redis(redis)
     await callback_query.answer(_("Tozalandi"))
     await callback_query.message.delete()
     await callback_query.message.answer(_("📍 Geolokatsiyani yuboring yoki yetkazib berish manzilini tanlang"),

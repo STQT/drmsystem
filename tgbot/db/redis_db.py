@@ -1,5 +1,3 @@
-import logging
-
 import aioredis
 
 
@@ -9,12 +7,21 @@ async def get_redis():
     return redis
 
 
+async def close_redis(redis):
+    # Close the Redis connection
+    redis.close()
+    await redis.wait_closed()
+
+
 async def get_user_shopping_cart(user_id):
     redis = await get_redis()
-    key = f"shopping_cart:{user_id}"
-    cart_items = await redis.hgetall(key)
-    decoded_cart_items = {key.decode('utf-8'): value.decode('utf-8') for key, value in cart_items.items()}
-    return decoded_cart_items
+    try:
+        key = f"shopping_cart:{user_id}"
+        cart_items = await redis.hgetall(key)
+        decoded_cart_items = {key.decode('utf-8'): value.decode('utf-8') for key, value in cart_items.items()}
+        return decoded_cart_items
+    finally:
+        await close_redis(redis)
 
 
 def get_cart_items_list(cart_items):
@@ -26,7 +33,6 @@ def get_cart_items_list(cart_items):
 
 
 def get_cart_items_text(cart_items):
-    logging.info(cart_items.items(), "###########################")
     cart_items_text = ""
     total_price = 0
     for item_key, price in cart_items.items():
@@ -41,5 +47,8 @@ def get_cart_items_text(cart_items):
 
 async def clear_user_shopping_cart(user_id):
     redis = await get_redis()
-    key = f"shopping_cart:{user_id}"
-    await redis.delete(key)
+    try:
+        key = f"shopping_cart:{user_id}"
+        await redis.delete(key)
+    finally:
+        await close_redis(redis)

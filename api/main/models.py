@@ -30,9 +30,6 @@ class Product(models.Model):
     fat = models.FloatField(default=14.4)
     carbohydrate = models.FloatField(default=24.2)
     calories = models.IntegerField(default=1008)
-    description_uz = models.CharField(max_length=100)
-    description_ru = models.CharField(max_length=100, blank=True, null=True)
-    description_en = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.name_uz

@@ -5,6 +5,7 @@ from aiohttp import ClientSession, ClientResponseError, ClientError
 
 class Database:
     DELIVERY_COST = "10000"
+
     def __init__(self, base_url):
         self.base_url = base_url
         self.session = ClientSession(trust_env=True)
@@ -114,7 +115,7 @@ class Database:
             f"/products/{str(product_id)}/", data)
 
     async def create_order(self, data):
-        return await self.make_request("POST", "/orders/", data)
+        return await self.make_request("post", "/orders/", data)
 
     async def close(self):
         await self.session.close()

@@ -93,7 +93,7 @@ async def send_to_group_order(m: Message, config: Config, data, cart_items_text,
             "To'lov turi: {payment_method}\n\n"
             "Mahsulotlar: {total_price} so'm\n"
             "Yetkazib berish: {delivery} so'm\n"
-            "Telefon raqam: {phone}"
+            "Telefon raqam: {phone}\n"
             "Jami: {cost} so'm"
         ).format(
             address=data["address"],
@@ -101,6 +101,6 @@ async def send_to_group_order(m: Message, config: Config, data, cart_items_text,
             cart_items_text=cart_items_text,
             total_price=total_price,
             delivery=db.DELIVERY_COST,
-            phone=data['phone'],
+            phone=data['contact'],
             cost=int(db.DELIVERY_COST) + total_price
         ))

@@ -1,3 +1,4 @@
+import re
 import logging
 
 from aiogram import types
@@ -73,3 +74,14 @@ def collect_data_for_request(data, cart_items, user_lang, check_id=None):
     order_data.update({"products": items_list})
     logging.info(order_data)
     return order_data
+
+
+def validate_uzbek_phone_number(number):
+    # Regular expression pattern for Uzbekistan phone numbers
+    pattern = r'^\+998 \d{2} \d{3} \d{2} \d{2}$'
+
+    # Check if the number matches the pattern
+    if re.match(pattern, number):
+        return True
+    else:
+        return False

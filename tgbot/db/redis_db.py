@@ -1,5 +1,3 @@
-import logging
-
 import aioredis
 
 
@@ -26,7 +24,6 @@ def get_cart_items_list(cart_items):
 
 
 def get_cart_items_text(cart_items):
-    logging.info(cart_items.items(), "###########################")
     cart_items_text = ""
     total_price = 0
     for item_key, price in cart_items.items():

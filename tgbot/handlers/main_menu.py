@@ -16,7 +16,8 @@ from tgbot.keyboards.reply import settings_buttons, menu_keyboards, get_verifica
 from tgbot.misc.geolocation import get_location_name_async
 from tgbot.misc.i18n import i18ns
 from tgbot.misc.states import MainMenuState, SettingsState, BuyState, ReviewState
-from tgbot.misc.utils import get_my_location_for_select, get_shopping_cart, collect_data_for_request
+from tgbot.misc.utils import get_my_location_for_select, get_shopping_cart, collect_data_for_request, \
+    validate_uzbek_phone_number
 
 _ = i18ns.gettext
 
@@ -161,18 +162,25 @@ async def get_cart(m: Message, state: FSMContext, user_lang, db: Database):
 
 
 async def get_phone(m: Message, state: FSMContext, user_lang, db: Database):
-    if m.content_type == types.ContentType.TEXT or m.text == _("⬅️ Ortga"):  # noqa
+    if m.content_type == types.ContentType.TEXT and m.text == _("⬅️ Ortga"):  # noqa
         await m.answer(_("Quyidagilardan birini tanlang", locale=user_lang),
                        reply_markup=main_menu_keyboard(user_lang))
         await MainMenuState.get_menu.set()
         return
+    elif m.content_type == types.ContentType.TEXT: # noqa
+        validator = validate_uzbek_phone_number(m.text)
+        if validator:
+            await state.update_data(contact=m.text)
+        else:
+            await m.answer(_("Iltimos, telefon raqamni ko'rsatilgan formatda yozing"))
+            return
     else:
         # if m.contact.user_id != m.from_user.id:
         #     await m.answer(_("Iltimos ushbu telegram akauntga biriktirilgan telefon raqamini jo'nating"))
         #     return
         await state.update_data(contact=m.contact.phone_number)
-        await m.answer(_("Toʻlov turini tanlang"), reply_markup=payment_method_btns())
-        await BuyState.get_payment_method.set()
+    await m.answer(_("Toʻlov turini tanlang"), reply_markup=payment_method_btns())
+    await BuyState.get_payment_method.set()
 
 
 async def get_payment_method(m: Message, state: FSMContext, user_lang, db: Database):

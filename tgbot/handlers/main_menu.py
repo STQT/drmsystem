@@ -86,15 +86,19 @@ async def menu(m: Message, user_lang, state: FSMContext, db: Database):
         # GET longitude and latitude. Request pygis geolocation
         location = m.location
         address = await get_location_name_async(location.latitude, location.longitude)
-        await state.update_data(longitude=location.longitude,
-                                latitude=location.latitude,
-                                address=address)
-        await m.answer(
-            _("Buyurtma bermoqchi bo'lgan manzil:\n"
-              f"{address}\n"
-              "Ushbu manzilni tasdiqlaysizmi?").format(address=address),
-            reply_markup=get_verification()
-        )
+        if address:
+            await state.update_data(longitude=location.longitude,
+                                    latitude=location.latitude,
+                                    address=address)
+            await m.answer(
+                _("Buyurtma bermoqchi bo'lgan manzil:\n"
+                  f"{address}\n"
+                  "Ushbu manzilni tasdiqlaysizmi?").format(address=address),
+                reply_markup=get_verification()
+            )
+        else:
+            await m.answer(_("Ushbu bot orqali faqatgina O'zbekiston hududida xizmat ko'rsata olamiz.\n"
+                             "Tez orada sizning hududda ham xizmat ko'rsatamiz😉"))
 
 
 async def get_category(m: Message, state: FSMContext, user_lang, db: Database):
@@ -208,7 +212,7 @@ async def get_phone(m: Message, state: FSMContext, user_lang, db: Database):
                        reply_markup=main_menu_keyboard(user_lang))
         await MainMenuState.get_menu.set()
         return
-    elif m.content_type == types.ContentType.TEXT: # noqa
+    elif m.content_type == types.ContentType.TEXT:  # noqa
         validator = validate_uzbek_phone_number(m.text)
         if validator:
             await state.update_data(contact=m.text)

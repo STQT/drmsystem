@@ -15,7 +15,7 @@ _ = i18ns.gettext
 async def user_start(m: Message, db: Database):
     user = await db.get_user(
         username=m.from_user.username,
-        fullname=m.from_user.full_name,
+        fullname=m.from_user.full_name.replace("'", "´").replace('"', "”"),
         user_id=m.from_user.id,
         user_lang=m.from_user.language_code)
 

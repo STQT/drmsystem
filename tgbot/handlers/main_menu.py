@@ -1,11 +1,11 @@
-import logging
-import os
-
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, ContentTypes
 from urllib.parse import urlparse
 
+from aiogram.utils.exceptions import WrongFileIdentifier
+
+from tgbot.config import Config
 from tgbot.db.queries import Database
 from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text, get_cart_items_list, \
     clear_user_shopping_cart
@@ -18,6 +18,8 @@ from tgbot.misc.i18n import i18ns
 from tgbot.misc.states import MainMenuState, SettingsState, BuyState, ReviewState
 from tgbot.misc.utils import get_my_location_for_select, get_shopping_cart, collect_data_for_request, \
     validate_uzbek_phone_number
+from tgbot.misc.utils import get_my_location_for_select, get_shopping_cart, collect_data_for_request, \
+    update_server_photo_uri, send_to_group_order
 
 _ = i18ns.gettext
 
@@ -127,22 +129,62 @@ async def get_product(m: Message, state: FSMContext, user_lang, db: Database):
         await m.answer(_("Muzqaymoq sonini ko'rsating"), reply_markup=only_cart_and_back_btns())
         await state.update_data(product=m.text, price=product['price'])
         photo_uri = product.get("photo_uri")
-        logging.info(photo_uri)
+        caption = _("💲 Narxi: {price}\n"
+                    "⚖️ Og'irligi: {massa}\n"
+                    "🧈 Yog' miqdori: {jirnost}\n"
+                    "🌡 Saqlash harorati: {temperature}\n"
+                    "📅 Saqlash muddati: {srok_godnosti}\n"
+                    "📦 Qadolati: {upakovka}\n"
+                    "🧪 Protein: {protein}\n"
+                    "🧪 Fat: {fat}\n"
+                    "🧪 Carbohydrate: {carbohydrate}\n"
+                    "🧪 Calories: {calories}\n"
+                    ).format(
+            price=product['price'],
+            massa=product['massa'],
+            jirnost=product['jirnost'],
+            temperature=product['temperature'],
+            srok_godnosti=product['srok_godnosti'],
+            upakovka=product['upakovka'],
+            protein=product['protein'],
+            fat=product['fat'],
+            carbohydrate=product['carbohydrate'],
+            calories=product['calories']
+        )
         if photo_uri:
-            await m.answer_photo(photo_uri, reply_markup=product_inline_kb(product_id=product['id']))
+            try:
+                await m.answer_photo(photo_uri,
+                                     reply_markup=product_inline_kb(product_id=product['id']),
+                                     caption=caption
+                                     )
+            except WrongFileIdentifier:
+                photo_resp = await m.answer_photo(product['photo'],
+                                                  reply_markup=product_inline_kb(product_id=product['id']),
+                                                  caption=caption)
+                await update_server_photo_uri(db,
+                                              product_id=product['id'],
+                                              file_id=photo_resp.photo[-1].file_id)
         elif product["photo_updated"] is True or not product["photo_uri"]:
             url = product['photo']
             parsed_url = urlparse(url)
             file_name: str = parsed_url.path.split("/")[-1]  # noqa
-            with open("media/" + file_name, "rb") as file:
+            try:
+                with open("media/" + file_name, "rb") as file:
+                    photo_resp = await m.answer_photo(
+                        photo=file,
+                        reply_markup=product_inline_kb(product_id=product['id']),
+                        caption=caption
+                    )
+                    await update_server_photo_uri(db, product_id=product['id'],
+                                                  file_id=photo_resp.photo[-1].file_id)
+            except FileNotFoundError:
                 photo_resp = await m.answer_photo(
-                    photo=file,
-                    reply_markup=product_inline_kb(product_id=product['id'])
+                    photo=url,
+                    reply_markup=product_inline_kb(product_id=product['id']),
+                    caption=caption
                 )
-                await db.update_product(product['id'], {
-                    "photo_uri": photo_resp.photo[-1].file_id,
-                    "photo_updated": False
-                })
+                await update_server_photo_uri(db, product_id=product['id'],
+                                              file_id=photo_resp.photo[-1].file_id)
         await BuyState.get_cart.set()
     else:
         await m.answer(_("Iltimos ro'yxatdagi maxsulotni tanlang"))
@@ -152,7 +194,6 @@ async def get_cart(m: Message, state: FSMContext, user_lang, db: Database):
     if m.text == _("⬅️ Ortga"):  # noqa
         data = await state.get_data()
         products = await db.get_products(data.get("category"), user_lang)
-        logging.info(products)
         await m.answer(_("Muzqaymoq turini tanlang."),
                        reply_markup=generate_product_keyboard(products, user_lang))
         await BuyState.get_product.set()
@@ -229,7 +270,7 @@ async def get_payment_method(m: Message, state: FSMContext, user_lang, db: Datab
         await BuyState.get_approve.set()
 
 
-async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, config):
+async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, config: Config):
     if m.text == _("❌ Bekor qilish"):  # noqa
         await m.answer(_("Bo'limni tanlang.", locale=user_lang),
                        reply_markup=main_menu_keyboard(user_lang))
@@ -262,7 +303,6 @@ async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, co
                            reply_markup=types.ReplyKeyboardRemove(selective=True))
             await m.bot.send_invoice(**invoice_data)
         else:
-            await m.answer("Siz bilan bog'lanishadi", reply_markup=main_menu_keyboard(user_lang))
             cart_items = await get_user_shopping_cart(m.from_user.id)
 
             order_data = collect_data_for_request(
@@ -272,11 +312,14 @@ async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, co
             )
             try:
                 await db.create_order(order_data)
+                cart_items_text, total_price = get_cart_items_text(cart_items)
+                await send_to_group_order(m, config, data, cart_items_text, total_price, db)
                 await m.answer("Siz bilan bog'lanishadi", reply_markup=main_menu_keyboard(user_lang))
             except Exception as _e:
                 await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
                                reply_markup=main_menu_keyboard(user_lang))
-                await clear_user_shopping_cart(m.from_user.id)
+
+            await clear_user_shopping_cart(m.from_user.id)
 
             await state.finish()
             await MainMenuState.get_menu.set()
@@ -286,7 +329,7 @@ async def pre_checkout_query(query: PreCheckoutQuery):
     await query.bot.answer_pre_checkout_query(query.id, ok=True)
 
 
-async def success_payment(m: Message, config, user_lang, state: FSMContext, db: Database):
+async def success_payment(m: Message, config: Config, user_lang, state: FSMContext, db: Database):
     data = await state.get_data()
     cart_items = await get_user_shopping_cart(m.from_user.id)
 
@@ -298,12 +341,16 @@ async def success_payment(m: Message, config, user_lang, state: FSMContext, db: 
     )
     try:
         await db.create_order(order_data)
+        cart_items_text, total_price = get_cart_items_text(cart_items)
+        await send_to_group_order(m, config, data, cart_items_text, total_price, db)
         await m.answer(_("Sizning to'lovingiz muvaffaqiyatli o'tdi. Kuryer siz bilan bog'lanadi!"),
                        reply_markup=main_menu_keyboard(user_lang))
     except Exception as _e:
         await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
                        reply_markup=main_menu_keyboard(user_lang))
-        await clear_user_shopping_cart(m.from_user.id)
+    await clear_user_shopping_cart(m.from_user.id)
+    await state.finish()
+    await MainMenuState.get_menu.set()
 
 
 def register_menu(dp: Dispatcher):

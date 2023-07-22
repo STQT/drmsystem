@@ -2,7 +2,9 @@ import re
 import logging
 
 from aiogram import types
+from aiogram.types import Message
 
+from tgbot.config import Config
 from tgbot.db.queries import Database
 from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text, get_cart_items_list
 from tgbot.keyboards.inline import shopping_cart_kb
@@ -72,8 +74,37 @@ def collect_data_for_request(data, cart_items, user_lang, check_id=None):
             "count": item["count"]
         })
     order_data.update({"products": items_list})
-    logging.info(order_data)
     return order_data
+
+
+async def update_server_photo_uri(db: Database, product_id, file_id):
+    await db.update_product(product_id, {
+        "photo_uri": file_id,
+        "photo_updated": False
+    })
+
+
+async def send_to_group_order(m: Message, config: Config, data, cart_items_text, total_price, db: Database):
+    await m.bot.send_message(
+        config.tg_bot.group_id,
+        _(
+            "Yangi buyurtma:\n"
+            "Manzil: {address}\n\n"
+            "{cart_items_text}\n"
+            "To'lov turi: {payment_method}\n\n"
+            "Mahsulotlar: {total_price} so'm\n"
+            "Yetkazib berish: {delivery} so'm\n"
+            "Telefon raqam: {phone}\n"
+            "Jami: {cost} so'm"
+        ).format(
+            address=data["address"],
+            payment_method=data["payment_method"],
+            cart_items_text=cart_items_text,
+            total_price=total_price,
+            delivery=db.DELIVERY_COST,
+            phone=data['contact'],
+            cost=int(db.DELIVERY_COST) + total_price
+        ))
 
 
 def validate_uzbek_phone_number(number):

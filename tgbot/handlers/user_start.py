@@ -18,8 +18,9 @@ async def user_start(m: Message, db: Database):
         fullname=m.from_user.full_name,
         user_id=m.from_user.id,
         user_lang=m.from_user.language_code)
-    user_lang = user.get("user_lang")
+
     if user:
+        user_lang = user.get("user_lang")
         await m.answer(_("Bo'limni tanlang", locale=user_lang),
                        reply_markup=main_menu_keyboard(user_lang))
         await MainMenuState.get_menu.set()

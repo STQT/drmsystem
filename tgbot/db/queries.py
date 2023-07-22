@@ -82,12 +82,16 @@ class Database:
         return await self.make_request("GET",
                                        f"/users/{user_id}/clear_locations/")
 
-    async def create_user_location(self, user_id, longitude, latitude, address):
+    async def create_user_location(self,
+                                   user_id: int,
+                                   longitude: float,
+                                   latitude: float,
+                                   address: str):
         data = {
             "user_id": user_id,
             "longitude": longitude,
             "latitude": latitude,
-            "name": address
+            "name": address.replace("'", "´").replace('"', "”")
         }
         return await self.make_request("POST", "/user-locations/", data)
 

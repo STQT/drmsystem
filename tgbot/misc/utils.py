@@ -59,7 +59,7 @@ async def get_shopping_cart(m: types.Message, db: Database):
 
 def collect_data_for_request(data, cart_items, user_lang, check_id=None):
     order_data = {
-        "address": data["address"],
+        "address": data["address"].replace("'", "´").replace('"', "”"),
         "check_id": check_id if check_id else "Naqd pul",
         "phone": data["contact"],
         "payment_method": data["payment_method"],
@@ -70,7 +70,7 @@ def collect_data_for_request(data, cart_items, user_lang, check_id=None):
     for item in product_list:
         items_list.append({
             "product_lang": user_lang,
-            "product_name": item["name"],
+            "product_name": item["name"].replace("'", "´").replace('"', "”"),
             "count": item["count"]
         })
     order_data.update({"products": items_list})

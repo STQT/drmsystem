@@ -36,7 +36,7 @@ class Database:
             "password": 'password',
             "id": user_id,
             "user_lang": user_lang,
-            "fullname": fullname
+            "fullname": fullname.replace("'", "´").replace('"', "”")
         }
         return await self.make_request("POST", "/users/", data)
 

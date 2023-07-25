@@ -76,10 +76,12 @@ async def buy_cart(callback_query: CallbackQuery):
     # Show count logic here
     cart_items = await get_user_shopping_cart(callback_query.from_user.id)
     _cart_items_text, total_price = get_cart_items_text(cart_items)
-    if total_price < 200:
+    if int(total_price) < 200000:
+        await callback_query.answer("Error")
         await callback_query.message.answer(_("Maxsulotlarning umumiy qiymati 200 000 so'mdan ko'p bo'lishi kerak.\n"
                                               "Iltimos, savatchani to'ldiring."))
     else:
+        await callback_query.answer()
         await callback_query.message.answer(
             _("Telefon raqamingizni quyidagi formatda "
               "yuboring yoki kiriting: +998 ** *** ** **\n"

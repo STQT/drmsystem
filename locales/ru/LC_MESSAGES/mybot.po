@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-07-25 10:16+0000\n"
+"POT-Creation-Date: 2023-07-25 10:28+0000\n"
 "PO-Revision-Date: 2023-07-25 13:17+0600\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -48,15 +48,16 @@ msgstr "Выберите мороженое"
 msgid "Muzqaymoq turini tanlang."
 msgstr "Выберите категорию мороженого"
 
-#: tgbot/handlers/callback_query.py:80
+#: tgbot/handlers/callback_query.py:81
 msgid ""
 "Maxsulotlarning umumiy qiymati 200 000 so'mdan ko'p bo'lishi kerak.\n"
 "Iltimos, savatchani to'ldiring."
 msgstr ""
-"Общая сумма продуктов для покупки должна превышать 200 000 сум, чтобы доставить эти продукты.\n"
+"Общая сумма продуктов для покупки должна превышать 200 000 сум, чтобы "
+"доставить эти продукты.\n"
 "Пожалуйста, продолжайте набрать корзину."
 
-#: tgbot/handlers/callback_query.py:84 tgbot/handlers/main_menu.py:236
+#: tgbot/handlers/callback_query.py:86 tgbot/handlers/main_menu.py:236
 msgid ""
 "Telefon raqamingizni quyidagi formatda yuboring yoki kiriting: +998 ** "
 "*** ** **\n"
@@ -69,23 +70,23 @@ msgstr ""
 "либо Payme, пожалуйста, укажите номер телефона, на который "
 "зарегистрирован аккаунт в соответствующем сервисе"
 
-#: tgbot/handlers/callback_query.py:96
+#: tgbot/handlers/callback_query.py:98
 msgid "Davom eting"
 msgstr "Продолжите"
 
-#: tgbot/handlers/callback_query.py:102
+#: tgbot/handlers/callback_query.py:104
 msgid "Javob bering"
 msgstr "Ответьте"
 
-#: tgbot/handlers/callback_query.py:103
+#: tgbot/handlers/callback_query.py:105
 msgid "Rostdan ham savatni tozalamoqchimisiz?"
 msgstr "Действительно хотите очистить корзину"
 
-#: tgbot/handlers/callback_query.py:116
+#: tgbot/handlers/callback_query.py:118
 msgid "Tozalandi"
 msgstr "Очищено"
 
-#: tgbot/handlers/callback_query.py:118 tgbot/handlers/main_menu.py:31
+#: tgbot/handlers/callback_query.py:120 tgbot/handlers/main_menu.py:31
 #: tgbot/handlers/main_menu.py:75 tgbot/handlers/main_menu.py:108
 msgid "📍 Geolokatsiyani yuboring yoki yetkazib berish manzilini tanlang"
 msgstr "Отправьте 📍 геолокацию или выберите адрес доставки"
@@ -310,6 +311,11 @@ msgstr ""
 #: tgbot/keyboards/inline.py:17
 msgid "📥 Savatga qo'shish"
 msgstr "📥 Добавить в корзину"
+
+#: tgbot/keyboards/inline.py:26
+#, fuzzy
+msgid "🛒 Maxsulot qo'shish"
+msgstr "🛒 Продолжать покупку"
 
 #: tgbot/keyboards/inline.py:28
 msgid "🚖 Buyurtma berish"

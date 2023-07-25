@@ -23,7 +23,7 @@ def product_inline_kb(product_id, product_count=1):
 def shopping_cart_kb():
     inline_kb = InlineKeyboardMarkup(row_width=2)
     inline_kb.add(
-        InlineKeyboardButton(text="🛒 Maxsulot qo'shish",
+        InlineKeyboardButton(text=_("🛒 Maxsulot qo'shish"),
                              callback_data='close'),
         InlineKeyboardButton(text=_('🚖 Buyurtma berish'),
                              callback_data='buy'),

@@ -122,7 +122,7 @@ async def yes_clean(callback_query: CallbackQuery):
     await BuyState.get_location.set()
 
 
-async def no_clean(callback_query: CallbackQuery, db: Database):
+async def no_clean(callback_query: CallbackQuery, db: Database, user_lang):
     await callback_query.answer()
     await callback_query.message.delete()
     await get_shopping_cart(callback_query.message, db, user_lang)

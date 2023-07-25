@@ -5,7 +5,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from tgbot.db.queries import Database
-from tgbot.db.redis_db import get_redis, close_redis
+from tgbot.db.redis_db import get_redis, close_redis, get_user_shopping_cart, get_cart_items_text
 from tgbot.keyboards.inline import product_inline_kb, shopping_cart_clean_kb
 from tgbot.keyboards.reply import generate_product_keyboard, generate_category_keyboard, menu_keyboards, \
     get_contact_keyboard
@@ -46,7 +46,7 @@ async def show_count(callback_query: CallbackQuery):
 async def add_to_cart(callback_query: CallbackQuery, state: FSMContext, user_lang, db: Database):
     # Add to cart logic here
     _cart, count, product_id = callback_query.data.split('_')
-    await callback_query.answer("Added to cart")
+    await callback_query.answer(_("Savatga qo'shildi"))
     await callback_query.message.edit_caption(_("Qo'shildi: {count} ta").format(count=count))
     data = await state.get_data()
 
@@ -74,16 +74,21 @@ async def add_to_cart(callback_query: CallbackQuery, state: FSMContext, user_lan
 
 async def buy_cart(callback_query: CallbackQuery):
     # Show count logic here
-    await callback_query.answer()
-    await callback_query.message.answer(
-        _("Telefon raqamingizni quyidagi formatda "
-          "yuboring yoki kiriting: +998 ** *** ** **\n"
-          "Eslatma: Agar siz onlayn buyurtma uchun Click "
-          "yoki Payme orqali toʻlashni rejalashtirmoqchi "
-          "boʻlsangiz, tegishli xizmatda hisob qaydnomasi "
-          "roʻyxatdan oʻtgan telefon raqamini koʻrsating."),
-        reply_markup=get_contact_keyboard())
-    await BuyState.get_phone.set()
+    cart_items = await get_user_shopping_cart(callback_query.from_user.id)
+    _cart_items_text, total_price = get_cart_items_text(cart_items)
+    if total_price < 200:
+        await callback_query.message.answer(_("Maxsulotlarning umumiy qiymati 200 000 so'mdan ko'p bo'lishi kerak.\n"
+                                              "Iltimos, savatchani to'ldiring."))
+    else:
+        await callback_query.message.answer(
+            _("Telefon raqamingizni quyidagi formatda "
+              "yuboring yoki kiriting: +998 ** *** ** **\n"
+              "Eslatma: Agar siz onlayn buyurtma uchun Click "
+              "yoki Payme orqali toʻlashni rejalashtirmoqchi "
+              "boʻlsangiz, tegishli xizmatda hisob qaydnomasi "
+              "roʻyxatdan oʻtgan telefon raqamini koʻrsating."),
+            reply_markup=get_contact_keyboard())
+        await BuyState.get_phone.set()
 
 
 async def close_cart(callback_query: CallbackQuery):

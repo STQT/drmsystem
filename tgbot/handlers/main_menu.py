@@ -11,7 +11,7 @@ from tgbot.config import Config
 from tgbot.db.queries import Database
 from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text, get_cart_items_list, \
     clear_user_shopping_cart
-from tgbot.keyboards.inline import product_inline_kb, shopping_cart_kb
+from tgbot.keyboards.inline import product_inline_kb
 from tgbot.keyboards.reply import settings_buttons, menu_keyboards, get_verification, \
     generate_category_keyboard, generate_product_keyboard, only_cart_and_back_btns, main_menu_keyboard, \
     payment_method_btns, get_contact_keyboard, approve_btns, cancel_btn

@@ -46,13 +46,11 @@ async def get_shopping_cart(m: types.Message, db: Database):
                 "Savatda:\n"
                 "{cart_items_text}"
                 "Mahsulotlar: {total_price} so'm\n"
-                "Yetkazib berish: {delivery} so'm\n"
                 "Jami: {cost} so'm"
             ).format(
                 cart_items_text=cart_items_text,
                 total_price=total_price,
-                delivery=db.DELIVERY_COST,
-                cost=int(db.DELIVERY_COST) + total_price
+                cost=total_price
             ),
             reply_markup=shopping_cart_kb())
 
@@ -93,7 +91,6 @@ async def send_to_group_order(m: Message, config: Config, data, cart_items_text,
             "{cart_items_text}\n"
             "To'lov turi: {payment_method}\n\n"
             "Mahsulotlar: {total_price} so'm\n"
-            "Yetkazib berish: {delivery} so'm\n"
             "Telefon raqam: {phone}\n"
             "Jami: {cost} so'm"
         ).format(
@@ -101,9 +98,8 @@ async def send_to_group_order(m: Message, config: Config, data, cart_items_text,
             payment_method=data["payment_method"],
             cart_items_text=cart_items_text,
             total_price=total_price,
-            delivery=db.DELIVERY_COST,
             phone=data['contact'],
-            cost=int(db.DELIVERY_COST) + total_price
+            cost=total_price
         ))
 
 

@@ -27,7 +27,7 @@ async def user_start(m: Message, db: Database):
         return
     await m.answer(_("Assalomu alaykum!\n"
                      "Botimizga xush kelibsiz!\n"
-                     "Iltimos tilni tanlang"), reply_markup=language_keyboards())
+                     "Iltimos tilni tanlang", locale=m.from_user.language_code), reply_markup=language_keyboards())
     await UserRegisterState.get_lang.set()
 
 
@@ -35,7 +35,6 @@ async def get_user_lang(m: Message, state: FSMContext, db: Database):
     lang_dict = {
         "Uz": 'uz',
         "Ru": 'ru',
-        "En": 'en',
     }
     try:
         language = lang_dict[m.text]

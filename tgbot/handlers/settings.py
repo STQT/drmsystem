@@ -31,7 +31,6 @@ async def change_language(m: Message, state: FSMContext, user_lang, db: Database
     lang_dict = { # noqa
         "Uz": 'uz',
         "Ru": 'ru',
-        "En": 'en',
     }
     try:
         language = lang_dict[m.text]
@@ -42,9 +41,9 @@ async def change_language(m: Message, state: FSMContext, user_lang, db: Database
         fullname=m.from_user.full_name,
         user_id=m.from_user.id,
         user_lang=language)
-    await m.answer(_("Til muvaffaqiyatli o'zgartirildi", locale=user_lang))
+    await m.answer(_("Til muvaffaqiyatli o'zgartirildi", locale=language))
     await state.finish()
-    await m.answer("Sozlamalar", reply_markup=settings_buttons())
+    await m.answer(_("Sozlamalar", locale=language), reply_markup=settings_buttons(locale=language))
     await SettingsState.get_buttons.set()
 
 

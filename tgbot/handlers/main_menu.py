@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, ContentTypes
@@ -32,10 +34,10 @@ async def main_menu(m: Message, user_lang, state: FSMContext, db: Database):
 
     elif m.text == _("Izoh qoldirish", locale=user_lang):
         await m.answer(_("Izohingizni yuboring\n"
-                         "(Video, Audio, Xat"), reply_markup=cancel_btn())
+                         "(Video, Audio, Xat)"), reply_markup=cancel_btn())
         await ReviewState.get_review.set()
     elif m.text == _("Sozlamalar", locale=user_lang):
-        await m.answer("Sozlamalar", reply_markup=settings_buttons())
+        await m.answer(_("Sozlamalar"), reply_markup=settings_buttons(locale=user_lang))
         await SettingsState.get_buttons.set()
     else:
         await m.answer(_("Mavjud bo'lmagan buyruq!"))
@@ -92,7 +94,7 @@ async def menu(m: Message, user_lang, state: FSMContext, db: Database):
                                     address=address)
             await m.answer(
                 _("Buyurtma bermoqchi bo'lgan manzil:\n"
-                  f"{address}\n"
+                  "{address}\n"
                   "Ushbu manzilni tasdiqlaysizmi?").format(address=address),
                 reply_markup=get_verification()
             )
@@ -259,18 +261,16 @@ async def get_payment_method(m: Message, state: FSMContext, user_lang, db: Datab
                     "{cart_items_text}\n"
                     "To'lov turi: {payment_method}\n\n"
                     "Mahsulotlar: {total_price} so'm\n"
-                    "Yetkazib berish: {delivery} so'm\n"
                     "Jami: {cost} so'm"
                 ).format(
                     address=data["address"],
                     payment_method=data["payment_method"],
                     cart_items_text=cart_items_text,
                     total_price=total_price,
-                    delivery=db.DELIVERY_COST,
-                    cost=int(db.DELIVERY_COST) + total_price
+                    cost=total_price
                 ),
                 reply_markup=approve_btns())
-            await state.update_data(cost=int(db.DELIVERY_COST) + total_price)
+            await state.update_data(cost=total_price)
         await BuyState.get_approve.set()
 
 
@@ -318,7 +318,7 @@ async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, co
                 await db.create_order(order_data)
                 cart_items_text, total_price = get_cart_items_text(cart_items)
                 await send_to_group_order(m, config, data, cart_items_text, total_price, db)
-                await m.answer("Siz bilan bog'lanishadi", reply_markup=main_menu_keyboard(user_lang))
+                await m.answer(_("Siz bilan bog'lanishadi"), reply_markup=main_menu_keyboard(user_lang))
             except Exception as _e:
                 await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
                                reply_markup=main_menu_keyboard(user_lang))

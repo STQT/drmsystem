@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -53,6 +54,7 @@ def load_config(path: str = None):
     )
 
 
-I18N_DOMAIN = 'testbot'
-BASE_DIR = Path(__file__).parent
+I18N_DOMAIN = 'mybot'
+BASE_DIR = Path(__file__).parent.parent
 LOCALES_DIR = BASE_DIR / 'locales'
+logging.error(LOCALES_DIR)

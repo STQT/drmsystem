@@ -4,7 +4,7 @@ from aiohttp import ClientSession, ClientResponseError, ClientError
 
 
 class Database:
-    DELIVERY_COST = "10000"
+    # DELIVERY_COST = "10000"
 
     def __init__(self, base_url):
         self.base_url = base_url

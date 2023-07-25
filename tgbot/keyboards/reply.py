@@ -1,7 +1,7 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from tgbot.misc.i18n import i18ns
 
-languages = ("Uz", "Ru", "En")
+languages = ("Uz", "Ru")
 
 _ = i18ns.gettext
 
@@ -27,11 +27,11 @@ def main_menu_keyboard(locale):
     return keyboard
 
 
-def settings_buttons():
+def settings_buttons(locale=None):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(KeyboardButton(text=_("🗺 Mening manzilim")),
-                 KeyboardButton(text=_("Tilni o'zgartirish")))
-    keyboard.add(KeyboardButton(text=_("⬅️ Ortga")))
+    keyboard.add(KeyboardButton(text=_("🗺 Mening manzilim", locale=locale)),
+                 KeyboardButton(text=_("Tilni o'zgartirish", locale=locale)))
+    keyboard.add(KeyboardButton(text=_("⬅️ Ortga", locale=locale)))
     return keyboard
 
 

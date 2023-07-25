@@ -110,7 +110,7 @@ async def get_category(m: Message, state: FSMContext, user_lang, db: Database):
         await BuyState.get_location.set()
         return
     elif m.text == _("📥 Savat"):
-        await get_shopping_cart(m, db)
+        await get_shopping_cart(m, db, user_lang)
         return
     await state.update_data(category=m.text)
     products = await db.get_products(category=m.text, user_lang=user_lang)

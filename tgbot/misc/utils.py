@@ -35,7 +35,7 @@ async def get_my_location_for_select(m: types.Message, user_lang, db: Database):
         await m.answer(_("Manzillar mavjud emas"), reply_markup=back_button(locale=user_lang))
 
 
-async def get_shopping_cart(m: types.Message, db: Database):
+async def get_shopping_cart(m: types.Message, db: Database, user_lang):
     cart_items = await get_user_shopping_cart(m.from_user.id)
     if not cart_items:
         await m.answer(_("Savat bo'sh"))
@@ -52,7 +52,7 @@ async def get_shopping_cart(m: types.Message, db: Database):
                 total_price=total_price,
                 cost=total_price
             ),
-            reply_markup=shopping_cart_kb())
+            reply_markup=shopping_cart_kb(user_lang))
 
 
 def collect_data_for_request(data, cart_items, user_lang, check_id=None):

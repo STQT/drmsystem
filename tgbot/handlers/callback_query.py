@@ -125,7 +125,7 @@ async def yes_clean(callback_query: CallbackQuery):
 async def no_clean(callback_query: CallbackQuery, db: Database):
     await callback_query.answer()
     await callback_query.message.delete()
-    await get_shopping_cart(callback_query.message, db)
+    await get_shopping_cart(callback_query.message, db, user_lang)
 
 
 def register_callback(dp: Dispatcher):

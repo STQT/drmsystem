@@ -127,7 +127,7 @@ async def get_product(m: Message, state: FSMContext, user_lang, db: Database):
         await BuyState.get_category.set()
         return
     elif m.text == _("📥 Savat"):
-        await get_shopping_cart(m, db)
+        await get_shopping_cart(m, db, user_lang)
         return
 
     product = await db.get_product(m.text, user_lang)
@@ -205,7 +205,7 @@ async def get_cart(m: Message, state: FSMContext, user_lang, db: Database):
         await BuyState.get_product.set()
         return
     elif m.text == _("📥 Savat"):
-        await get_shopping_cart(m, db)
+        await get_shopping_cart(m, db, user_lang)
 
 
 async def get_phone(m: Message, state: FSMContext, user_lang, db: Database):

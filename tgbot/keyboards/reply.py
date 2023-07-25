@@ -69,7 +69,7 @@ def generate_category_keyboard(categories, user_lang):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     for category in categories:
         keyboard.add(KeyboardButton(category[name_key]))
-    keyboard.add(KeyboardButton(_("⬅️ Ortga")), KeyboardButton("📥 Savat"))
+    keyboard.add(KeyboardButton(_("⬅️ Ortga")), KeyboardButton(_("📥 Savat")))
     return keyboard
 
 

@@ -24,8 +24,9 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name_uz", "name_ru", "name_en"]
+    list_display = ["name_uz", "category", "name_ru", "name_en"]
     readonly_fields = ("photo_uri", "photo_updated")
+    list_select_related = ["category"]
 
 
 @admin.register(Category)

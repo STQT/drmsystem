@@ -135,16 +135,16 @@ async def get_product(m: Message, state: FSMContext, user_lang, db: Database):
         await m.answer(_("Muzqaymoq sonini ko'rsating"), reply_markup=only_cart_and_back_btns())
         await state.update_data(product=m.text, price=product['price'])
         photo_uri = product.get("photo_uri")
-        caption = _("💲 Narxi: {price}\n"
-                    "⚖️ Og'irligi: {massa}\n"
-                    "🧈 Yog' miqdori: {jirnost}\n"
-                    "🌡 Saqlash harorati: {temperature}\n"
-                    "📅 Saqlash muddati: {srok_godnosti}\n"
+        caption = _("💲 Narxi: {price} so'm\n"
+                    "⚖️ Og'irligi: {massa} kg\n"
+                    "🧈 Yog' miqdori: {jirnost} %\n"
+                    "🌡 Saqlash harorati: {temperature} °C\n"
+                    "📅 Saqlash muddati: {srok_godnosti} kun\n"
                     "📦 Qadolati: {upakovka}\n"
-                    "🧪 Protein: {protein}\n"
-                    "🧪 Fat: {fat}\n"
-                    "🧪 Carbohydrate: {carbohydrate}\n"
-                    "🧪 Calories: {calories}\n"
+                    "🧪 Protein: {protein} gr\n"
+                    "🧪 Fat: {fat} gr\n"
+                    "🧪 Carbohydrate: {carbohydrate} gr\n"
+                    "🧪 Calories: {calories} kJ\n"
                     ).format(
             price=product['price'],
             massa=product['massa'],

@@ -139,7 +139,7 @@ async def get_product(m: Message, state: FSMContext, user_lang, db: Database):
                     "⚖️ Og'irligi: {massa} kg\n"
                     "🧈 Yog' miqdori: {jirnost} %\n"
                     "🌡 Saqlash harorati: {temperature} °C\n"
-                    "📅 Saqlash muddati: {srok_godnosti} kun\n"
+                    "📅 Saqlash muddati: {srok_godnosti} oy\n"
                     "📦 Qadolati: {upakovka}\n"
                     "🧪 Protein: {protein} gr\n"
                     "🧪 Fat: {fat} gr\n"

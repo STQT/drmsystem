@@ -186,7 +186,6 @@ msgid "Muzqaymoq sonini ko'rsating"
 msgstr "Укажите количество мороженого"
 
 #: tgbot/handlers/main_menu.py:138
-#, fuzzy
 msgid ""
 "💲 Narxi: {price} so'm\n"
 "⚖️ Og'irligi: {massa} kg\n"

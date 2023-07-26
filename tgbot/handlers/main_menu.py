@@ -157,20 +157,7 @@ async def get_product(m: Message, state: FSMContext, user_lang, db: Database):
             carbohydrate=product['carbohydrate'],
             calories=product['calories']
         )
-        if photo_uri:
-            try:
-                await m.answer_photo(photo_uri,
-                                     reply_markup=product_inline_kb(product_id=product['id']),
-                                     caption=caption
-                                     )
-            except WrongFileIdentifier:
-                photo_resp = await m.answer_photo(product['photo'],
-                                                  reply_markup=product_inline_kb(product_id=product['id']),
-                                                  caption=caption)
-                await update_server_photo_uri(db,
-                                              product_id=product['id'],
-                                              file_id=photo_resp.photo[-1].file_id)
-        elif product["photo_updated"] is True or not product["photo_uri"]:
+        if product["photo_updated"] is True or not product["photo_uri"]:
             url = product['photo']
             parsed_url = urlparse(url)
             file_name: str = parsed_url.path.split("/")[-1]  # noqa
@@ -191,6 +178,20 @@ async def get_product(m: Message, state: FSMContext, user_lang, db: Database):
                 )
                 await update_server_photo_uri(db, product_id=product['id'],
                                               file_id=photo_resp.photo[-1].file_id)
+        else:
+            try:
+                await m.answer_photo(photo_uri,
+                                     reply_markup=product_inline_kb(product_id=product['id']),
+                                     caption=caption
+                                     )
+            except WrongFileIdentifier:
+                photo_resp = await m.answer_photo(product['photo'],
+                                                  reply_markup=product_inline_kb(product_id=product['id']),
+                                                  caption=caption)
+                await update_server_photo_uri(db,
+                                              product_id=product['id'],
+                                              file_id=photo_resp.photo[-1].file_id)
+
         await BuyState.get_cart.set()
     else:
         await m.answer(_("Iltimos ro'yxatdagi maxsulotni tanlang"))

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-07-26 12:55+0000\n"
+"POT-Creation-Date: 2023-07-26 13:44+0000\n"
 "PO-Revision-Date: 2023-07-25 13:17+0600\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -44,7 +44,7 @@ msgid "Muzqaymoqni tanlang"
 msgstr "Выберите мороженое"
 
 #: tgbot/handlers/callback_query.py:70 tgbot/handlers/main_menu.py:69
-#: tgbot/handlers/main_menu.py:125 tgbot/handlers/main_menu.py:203
+#: tgbot/handlers/main_menu.py:125 tgbot/handlers/main_menu.py:204
 msgid "Muzqaymoq turini tanlang."
 msgstr "Выберите категорию мороженого"
 
@@ -57,7 +57,7 @@ msgstr ""
 "доставить эти продукты.\n"
 "Пожалуйста, продолжайте набрать корзину."
 
-#: tgbot/handlers/callback_query.py:86 tgbot/handlers/main_menu.py:236
+#: tgbot/handlers/callback_query.py:86 tgbot/handlers/main_menu.py:237
 msgid ""
 "Telefon raqamingizni quyidagi formatda yuboring yoki kiriting: +998 ** "
 "*** ** **\n"
@@ -119,8 +119,8 @@ msgstr "Не существующая команда!"
 
 #: tgbot/handlers/main_menu.py:49 tgbot/handlers/main_menu.py:74
 #: tgbot/handlers/main_menu.py:107 tgbot/handlers/main_menu.py:123
-#: tgbot/handlers/main_menu.py:200 tgbot/handlers/main_menu.py:212
-#: tgbot/handlers/main_menu.py:234 tgbot/handlers/settings.py:24
+#: tgbot/handlers/main_menu.py:201 tgbot/handlers/main_menu.py:213
+#: tgbot/handlers/main_menu.py:235 tgbot/handlers/settings.py:24
 #: tgbot/keyboards/reply.py:18 tgbot/keyboards/reply.py:34
 #: tgbot/keyboards/reply.py:41 tgbot/keyboards/reply.py:47
 #: tgbot/keyboards/reply.py:55 tgbot/keyboards/reply.py:62
@@ -153,7 +153,7 @@ msgstr "Ошибка соединения с сервером. Пожалуйс�
 msgid "❌ Yo'q"
 msgstr "❌ Нет"
 
-#: tgbot/handlers/main_menu.py:81 tgbot/handlers/main_menu.py:279
+#: tgbot/handlers/main_menu.py:81 tgbot/handlers/main_menu.py:280
 msgid "Bo'limni tanlang."
 msgstr "Выберите раздел."
 
@@ -176,7 +176,7 @@ msgstr ""
 "Скоро мы будем работать в Вашей стране😉"
 
 #: tgbot/handlers/main_menu.py:112 tgbot/handlers/main_menu.py:129
-#: tgbot/handlers/main_menu.py:207 tgbot/keyboards/reply.py:72
+#: tgbot/handlers/main_menu.py:208 tgbot/keyboards/reply.py:72
 #: tgbot/keyboards/reply.py:98
 msgid "📥 Savat"
 msgstr "📥 Корзина"
@@ -210,27 +210,27 @@ msgstr ""
 "🧪 Карбогидраты: {carbohydrate} гр\n"
 "🧪 Калории: {calories} кДж\n"
 
-#: tgbot/handlers/main_menu.py:196
+#: tgbot/handlers/main_menu.py:197
 msgid "Iltimos ro'yxatdagi maxsulotni tanlang"
 msgstr "Пожалуйста, выберите продукт со списка"
 
-#: tgbot/handlers/main_menu.py:213
+#: tgbot/handlers/main_menu.py:214
 msgid "Quyidagilardan birini tanlang"
 msgstr "Выберите одно из списка"
 
-#: tgbot/handlers/main_menu.py:222
+#: tgbot/handlers/main_menu.py:223
 msgid "Iltimos, telefon raqamni ko'rsatilgan formatda yozing"
 msgstr "Пожалуйста, отправьте телефон в указанном формате"
 
-#: tgbot/handlers/main_menu.py:229
+#: tgbot/handlers/main_menu.py:230
 msgid "Toʻlov turini tanlang"
 msgstr "Выберите метод оплаты"
 
-#: tgbot/handlers/main_menu.py:253 tgbot/misc/utils.py:41
+#: tgbot/handlers/main_menu.py:254 tgbot/misc/utils.py:41
 msgid "Savat bo'sh"
 msgstr "Корзина пуста"
 
-#: tgbot/handlers/main_menu.py:258
+#: tgbot/handlers/main_menu.py:259
 msgid ""
 "Sizning buyurtmangiz:\n"
 "Manzil: {address}\n"
@@ -250,24 +250,24 @@ msgstr ""
 "Продукты: {total_price} сум\n"
 "Общая сумма: {cost} сум"
 
-#: tgbot/handlers/main_menu.py:278 tgbot/handlers/review.py:14
+#: tgbot/handlers/main_menu.py:279 tgbot/handlers/review.py:14
 #: tgbot/keyboards/reply.py:115 tgbot/keyboards/reply.py:121
 msgid "❌ Bekor qilish"
 msgstr "❌ Отмена"
 
-#: tgbot/handlers/main_menu.py:306
+#: tgbot/handlers/main_menu.py:307
 msgid "Iltimos, quyidagi to'lovni amalga oshiring 👇"
 msgstr "Пожалуйста, проведите оплату 👇"
 
-#: tgbot/handlers/main_menu.py:321
+#: tgbot/handlers/main_menu.py:322
 msgid "Siz bilan bog'lanishadi"
 msgstr "С Вами свяжутся"
 
-#: tgbot/handlers/main_menu.py:323 tgbot/handlers/main_menu.py:353
+#: tgbot/handlers/main_menu.py:324 tgbot/handlers/main_menu.py:354
 msgid "Serverdan xato o'tdi, birozdan so'ng xarakat qiling"
 msgstr "Ошибка сервера, попробуйте позже"
 
-#: tgbot/handlers/main_menu.py:350
+#: tgbot/handlers/main_menu.py:351
 msgid "Sizning to'lovingiz muvaffaqiyatli o'tdi. Kuryer siz bilan bog'lanadi!"
 msgstr "Ваш платеж успешно оплачен. С Вами свяжется курьер"
 

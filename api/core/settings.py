@@ -8,7 +8,6 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 env = environ.Env()
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -19,7 +18,6 @@ SECRET_KEY = "django-insecure-92k=)&8m514f=26%01u+fkf$0$-kce^uc66zqrsg=0kqm8b^h5
 DEBUG = env.bool("DJANGO_DEBUG", default=True)
 
 ALLOWED_HOSTS = ["localhost", "django", "icecreambot.itlink.uz"]
-
 
 # Application definition
 
@@ -66,7 +64,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -82,7 +79,6 @@ DATABASES = {
 
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -102,7 +98,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -113,7 +108,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -181,7 +175,6 @@ if DEBUG is False:
         default="[Svitlogorie.ru]",
     )
 
-
     # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
     # https://anymail.readthedocs.io/en/stable/installation/#anymail-settings-reference
     # https://anymail.readthedocs.io/en/stable/esps
@@ -242,4 +235,4 @@ if DEBUG is False:
         environment=env("SENTRY_ENVIRONMENT", default="production"),
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0),
     )
-
+    CORS_ALLOWED_ORIGINS = ["https://icecreambot.itlink.uz", ]

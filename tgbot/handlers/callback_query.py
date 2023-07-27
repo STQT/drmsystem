@@ -6,11 +6,11 @@ from aiogram.types import CallbackQuery, Message
 
 from tgbot.db.queries import Database
 from tgbot.db.redis_db import get_redis, close_redis, get_user_shopping_cart, get_cart_items_text
-from tgbot.keyboards.inline import product_inline_kb, shopping_cart_clean_kb
+from tgbot.keyboards.inline import product_inline_kb, shopping_cart_clean_kb, approve_delivery_buy
 from tgbot.keyboards.reply import generate_product_keyboard, generate_category_keyboard, menu_keyboards, \
-    get_contact_keyboard
+    get_contact_keyboard, main_menu_keyboard
 from tgbot.misc.i18n import i18ns
-from tgbot.misc.states import BuyState
+from tgbot.misc.states import BuyState, MainMenuState
 from tgbot.misc.utils import get_shopping_cart
 
 _ = i18ns.gettext
@@ -73,15 +73,17 @@ async def add_to_cart(callback_query: CallbackQuery, state: FSMContext, user_lan
 
 
 async def buy_cart(callback_query: CallbackQuery):
-    # Show count logic here
+    await callback_query.answer()
     cart_items = await get_user_shopping_cart(callback_query.from_user.id)
     _cart_items_text, total_price = get_cart_items_text(cart_items)
     if int(total_price) < 200000:
-        await callback_query.answer("Error")
-        await callback_query.message.answer(_("Maxsulotlarning umumiy qiymati 200 000 so'mdan ko'p bo'lishi kerak.\n"
-                                              "Iltimos, savatchani to'ldiring."))
+        await callback_query.message.delete()
+        await callback_query.message.answer(
+            _("Maxsulotlarning umumiy qiymati 200 000 so'mdan kam bo'lgani uchun, "
+              "Siz ushbu maxsulotlarni yetkazib berish (dostavka) uchun xaq to'laysiz.\n"
+              "Rozimisiz?"),
+            reply_markup=approve_delivery_buy())
     else:
-        await callback_query.answer()
         await callback_query.message.answer(
             _("Telefon raqamingizni quyidagi formatda "
               "yuboring yoki kiriting: +998 ** *** ** **\n"
@@ -125,7 +127,41 @@ async def yes_clean(callback_query: CallbackQuery):
 async def no_clean(callback_query: CallbackQuery, db: Database, user_lang):
     await callback_query.answer()
     await callback_query.message.delete()
-    await get_shopping_cart(callback_query.message, db, user_lang)
+    await get_shopping_cart(callback_query.message, db, user_lang, user_id=callback_query.from_user.id)
+
+
+async def delivery_yes(callback_query: CallbackQuery, db: Database, user_lang):
+    await callback_query.answer()
+    await callback_query.message.answer(
+        _("Telefon raqamingizni quyidagi formatda "
+          "yuboring yoki kiriting: +998 ** *** ** **\n"
+          "Eslatma: Agar siz onlayn buyurtma uchun Click "
+          "yoki Payme orqali toʻlashni rejalashtirmoqchi "
+          "boʻlsangiz, tegishli xizmatda hisob qaydnomasi "
+          "roʻyxatdan oʻtgan telefon raqamini koʻrsating."),
+        reply_markup=get_contact_keyboard())
+    await BuyState.get_phone.set()
+
+
+async def delivery_no(callback_query: CallbackQuery, user_lang):
+    await callback_query.answer()
+    await callback_query.message.delete()
+    redis = await get_redis()
+    key = f"shopping_cart:{callback_query.from_user.id}"
+    try:
+        # Delete the entire cart from Redis
+        await redis.delete(key)
+    finally:
+        await close_redis(redis)
+    await callback_query.message.answer(_("Bo'limni tanlang", locale=user_lang),
+                                        reply_markup=main_menu_keyboard(user_lang))
+    await MainMenuState.get_menu.set()
+
+
+async def delivery_back(callback_query: CallbackQuery, user_lang, db: Database):
+    await callback_query.answer()
+    await callback_query.message.delete()
+    await get_shopping_cart(callback_query.message, db, user_lang, user_id=callback_query.from_user.id)
 
 
 def register_callback(dp: Dispatcher):
@@ -155,4 +191,14 @@ def register_callback(dp: Dispatcher):
                                        state="*")
     dp.register_callback_query_handler(no_clean,
                                        lambda c: c.data == 'no',
+                                       state="*")
+    dp.register_callback_query_handler(delivery_yes,
+                                       lambda c: c.data == 'delivery_yes',
+                                       state="*")
+    dp.register_callback_query_handler(delivery_no,
+                                       lambda c: c.data == 'delivery_no',
+                                       state="*")
+
+    dp.register_callback_query_handler(delivery_back,
+                                       lambda c: c.data == 'delivery_back',
                                        state="*")

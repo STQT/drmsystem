@@ -13,8 +13,7 @@ def get_product_by_name_and_lang(name, lang):
 
 class OrderProductSerializer(serializers.Serializer):
     count = serializers.IntegerField()
-    product_name = serializers.CharField()
-    product_lang = serializers.ChoiceField(choices=[('uz', 'uz'), ('ru', 'ru'), ('en', 'en')])
+    product = serializers.CharField()
 
     # class Meta:
     #     model = OrderProduct
@@ -39,9 +38,6 @@ class OrderSerializer(serializers.ModelSerializer):
         products_data = validated_data.pop('order_products')
         order = super().create(validated_data)
         for product_data in products_data:
-            product_name = product_data.pop('product_name')
-            product_lang = product_data.pop('product_lang')
-            print(product_data)
-            product = get_product_by_name_and_lang(product_name, product_lang)
+            product = product_data.get('product')
             OrderProduct.objects.create(order=order, product=product, **product_data)
         return order

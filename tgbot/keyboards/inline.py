@@ -44,3 +44,18 @@ def shopping_cart_clean_kb():
                              callback_data='no'),
     )
     return inline_kb
+
+
+def approve_delivery_buy():
+    inline_kb = InlineKeyboardMarkup(row_width=2)
+    inline_kb.add(
+        InlineKeyboardButton(text="☑️ Xa",
+                             callback_data='delivery_yes'),
+        InlineKeyboardButton(text=_("✖️ Yo'q"),
+                             callback_data='delivery_no'),
+    )
+    inline_kb.add(
+        InlineKeyboardButton(text="⬅️ Ortga",
+                             callback_data='delivery_back')
+    )
+    return inline_kb

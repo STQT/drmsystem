@@ -312,8 +312,7 @@ async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, co
 
             order_data = collect_data_for_request(
                 data,
-                cart_items,
-                user_lang,
+                cart_items
             )
             try:
                 await db.create_order(order_data)
@@ -341,7 +340,6 @@ async def success_payment(m: Message, config: Config, user_lang, state: FSMConte
     order_data = collect_data_for_request(
         data,
         cart_items,
-        user_lang,
         m.successful_payment.provider_payment_charge_id
     )
     try:

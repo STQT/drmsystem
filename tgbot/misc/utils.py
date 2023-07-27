@@ -35,8 +35,8 @@ async def get_my_location_for_select(m: types.Message, user_lang, db: Database):
         await m.answer(_("Manzillar mavjud emas"), reply_markup=back_button(locale=user_lang))
 
 
-async def get_shopping_cart(m: types.Message, db: Database, user_lang):
-    cart_items = await get_user_shopping_cart(m.from_user.id)
+async def get_shopping_cart(m: types.Message, db: Database, user_lang, user_id=None):
+    cart_items = await get_user_shopping_cart(user_id if user_id else m.from_user.id)
     if not cart_items:
         await m.answer(_("Savat bo'sh"))
     else:
@@ -55,7 +55,7 @@ async def get_shopping_cart(m: types.Message, db: Database, user_lang):
             reply_markup=shopping_cart_kb(user_lang))
 
 
-def collect_data_for_request(data, cart_items, user_lang, check_id=None):
+def collect_data_for_request(data, cart_items, check_id=None):
     order_data = {
         "address": data["address"].replace("'", "´").replace('"', "”"),
         "check_id": check_id if check_id else "Naqd pul",
@@ -67,8 +67,7 @@ def collect_data_for_request(data, cart_items, user_lang, check_id=None):
     items_list = []
     for item in product_list:
         items_list.append({
-            "product_lang": user_lang,
-            "product_name": item["name"].replace("'", "´").replace('"', "”"),
+            "product": item["name"].replace("'", "´").replace('"', "”"),
             "count": item["count"]
         })
     order_data.update({"products": items_list})

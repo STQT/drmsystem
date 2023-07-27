@@ -60,15 +60,17 @@ class Database:
                        user_id: int,
                        fullname: str,
                        user_lang: str = "uz", ):
-        resp, _status = await self.make_request("GET", "/users/%s/" % str(user_id))
-        if _status != 200:
-            resp, _status = await self.create_user(
-                username=username,
-                user_id=user_id,
-                fullname=fullname,
-                user_lang=user_lang
-            )
-        return resp
+        url = self.base_url + "/users/%s/" % str(user_id)
+        async with ClientSession() as session:
+            async with session.request('GET', url) as resp:
+                if resp.status not in [200, 201]:
+                    resp, _status = await self.create_user(
+                        username=username,
+                        user_id=user_id,
+                        fullname=fullname,
+                        user_lang=user_lang
+                    )
+                return resp
 
     async def get_user_locations(self, user_id):
         return await self.make_request("GET",

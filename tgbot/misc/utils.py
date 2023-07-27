@@ -67,7 +67,7 @@ def collect_data_for_request(data, cart_items, check_id=None):
     items_list = []
     for item in product_list:
         items_list.append({
-            "product": item["name"].replace("'", "´").replace('"', "”"),
+            "product_name": item["name"].replace("'", "´").replace('"', "”"),
             "count": item["count"]
         })
     order_data.update({"products": items_list})

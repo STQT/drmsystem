@@ -111,5 +111,4 @@ class Database:
             f"/products/{str(product_id)}/", data)
 
     async def create_order(self, data):
-        logging.info(data)
         return await self.make_request("POST", "/orders/", data)

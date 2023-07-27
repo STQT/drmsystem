@@ -13,7 +13,7 @@ def get_product_by_name_and_lang(name, lang):
 
 class OrderProductSerializer(serializers.Serializer):
     count = serializers.IntegerField()
-    product = serializers.CharField()
+    product_name = serializers.CharField()
 
     # class Meta:
     #     model = OrderProduct
@@ -38,6 +38,6 @@ class OrderSerializer(serializers.ModelSerializer):
         products_data = validated_data.pop('order_products')
         order = super().create(validated_data)
         for product_data in products_data:
-            product = product_data.get('product')
+            product = product_data.pop('product_name')
             OrderProduct.objects.create(order=order, product=product, **product_data)
         return order

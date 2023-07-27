@@ -23,7 +23,7 @@ services:
     ports:
       - '8040:8000'
     environment:
-      - DJANGO_DEBUG=false  # Set the DEBUG environment variable
+      - DJANGO_DEBUG=true  # Set the DEBUG environment variable
     command: /start
     networks:
       - tg_bot

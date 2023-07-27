@@ -5,11 +5,15 @@ from .models import Order, OrderProduct
 
 class OrderProductInline(admin.TabularInline):
     model = OrderProduct
+    fields = ("product", "count",)
 
     def has_add_permission(self, request, obj):
         return False
 
     def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
         return False
 
 
@@ -23,4 +27,7 @@ class OrderAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
         return False

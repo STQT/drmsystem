@@ -142,7 +142,6 @@ if DEBUG is False:
         from sentry_sdk.integrations.logging import LoggingIntegration
     except ImportError:
         ...
-    from .settings import *  # noqa
 
     # GENERAL
     # ------------------------------------------------------------------------------

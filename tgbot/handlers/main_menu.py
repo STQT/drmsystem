@@ -1,5 +1,3 @@
-import logging
-
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, LabeledPrice, PreCheckoutQuery, ContentTypes
@@ -9,8 +7,7 @@ from aiogram.utils.exceptions import WrongFileIdentifier
 
 from tgbot.config import Config
 from tgbot.db.queries import Database
-from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text, get_cart_items_list, \
-    clear_user_shopping_cart
+from tgbot.db.redis_db import get_user_shopping_cart, get_cart_items_text, clear_user_shopping_cart
 from tgbot.keyboards.inline import product_inline_kb
 from tgbot.keyboards.reply import settings_buttons, menu_keyboards, get_verification, \
     generate_category_keyboard, generate_product_keyboard, only_cart_and_back_btns, main_menu_keyboard, \
@@ -57,7 +54,7 @@ async def menu(m: Message, user_lang, state: FSMContext, db: Database):
         if m.text == _("✅ Ha"):
             data = await state.get_data()
             # SEND TO DB NEW ADDRESS AND SHOW CATEGORIES
-            resp_data = await db.create_user_location(
+            resp_data, _status = await db.create_user_location(
                 user_id=m.from_user.id,
                 longitude=data['longitude'],
                 latitude=data['latitude'],
@@ -65,7 +62,7 @@ async def menu(m: Message, user_lang, state: FSMContext, db: Database):
             )
             if resp_data:
                 await state.update_data(address=data['address'])
-                categories = await db.get_categories()
+                categories, _status = await db.get_categories()
                 await m.answer(_("Muzqaymoq turini tanlang."),
                                reply_markup=generate_category_keyboard(categories, user_lang))
                 await BuyState.get_category.set()
@@ -76,7 +73,7 @@ async def menu(m: Message, user_lang, state: FSMContext, db: Database):
                            reply_markup=menu_keyboards())
             await BuyState.get_location.set()
         else:
-            categories = await db.get_categories()
+            categories, _status = await db.get_categories()
             await state.update_data(address=m.text)
             await m.answer(_("Bo'limni tanlang."),
                            reply_markup=generate_category_keyboard(categories, user_lang))
@@ -113,7 +110,7 @@ async def get_category(m: Message, state: FSMContext, user_lang, db: Database):
         await get_shopping_cart(m, db, user_lang)
         return
     await state.update_data(category=m.text)
-    products = await db.get_products(category=m.text, user_lang=user_lang)
+    products, _status = await db.get_products(category=m.text, user_lang=user_lang)
     # TODO: rasm kerakmi?
     await m.answer(_("Muzqaymoqni tanlang"), reply_markup=generate_product_keyboard(products, user_lang))
     await BuyState.get_product.set()
@@ -121,7 +118,7 @@ async def get_category(m: Message, state: FSMContext, user_lang, db: Database):
 
 async def get_product(m: Message, state: FSMContext, user_lang, db: Database):
     if m.text == _("⬅️ Ortga"):  # noqa
-        categories = await db.get_categories()
+        categories, _status = await db.get_categories()
         await m.answer(_("Muzqaymoq turini tanlang."),
                        reply_markup=generate_category_keyboard(categories, user_lang))
         await BuyState.get_category.set()
@@ -200,7 +197,7 @@ async def get_product(m: Message, state: FSMContext, user_lang, db: Database):
 async def get_cart(m: Message, state: FSMContext, user_lang, db: Database):
     if m.text == _("⬅️ Ortga"):  # noqa
         data = await state.get_data()
-        products = await db.get_products(data.get("category"), user_lang)
+        products, _status = await db.get_products(data.get("category"), user_lang)
         await m.answer(_("Muzqaymoq turini tanlang."),
                        reply_markup=generate_product_keyboard(products, user_lang))
         await BuyState.get_product.set()
@@ -323,7 +320,7 @@ async def get_approve(m: Message, state: FSMContext, user_lang, db: Database, co
                 await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
                                reply_markup=main_menu_keyboard(user_lang))
 
-            await clear_user_shopping_cart(m.from_user.id)
+            # await clear_user_shopping_cart(m.from_user.id)
 
             await state.finish()
             await MainMenuState.get_menu.set()
@@ -351,7 +348,7 @@ async def success_payment(m: Message, config: Config, user_lang, state: FSMConte
     except Exception as _e:
         await m.answer(_("Serverdan xato o'tdi, birozdan so'ng xarakat qiling"),
                        reply_markup=main_menu_keyboard(user_lang))
-    await clear_user_shopping_cart(m.from_user.id)
+    # await clear_user_shopping_cart(m.from_user.id)
     await state.finish()
     await MainMenuState.get_menu.set()
 

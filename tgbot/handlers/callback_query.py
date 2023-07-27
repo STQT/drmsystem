@@ -1,5 +1,3 @@
-import logging
-
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery, Message
@@ -7,7 +5,7 @@ from aiogram.types import CallbackQuery, Message
 from tgbot.db.queries import Database
 from tgbot.db.redis_db import get_redis, close_redis, get_user_shopping_cart, get_cart_items_text
 from tgbot.keyboards.inline import product_inline_kb, shopping_cart_clean_kb, approve_delivery_buy
-from tgbot.keyboards.reply import generate_product_keyboard, generate_category_keyboard, menu_keyboards, \
+from tgbot.keyboards.reply import generate_category_keyboard, menu_keyboards, \
     get_contact_keyboard, main_menu_keyboard
 from tgbot.misc.i18n import i18ns
 from tgbot.misc.states import BuyState, MainMenuState
@@ -61,12 +59,12 @@ async def add_to_cart(callback_query: CallbackQuery, state: FSMContext, user_lan
     finally:
         await close_redis(redis)
     if category:
-        products = await db.get_products(category=category, user_lang=user_lang)
+        products, _status = await db.get_products(category=category, user_lang=user_lang)
         await callback_query.message.answer(_("Muzqaymoqni tanlang"),
                                             reply_markup=generate_category_keyboard(products, user_lang))
         await BuyState.get_product.set()
     else:
-        categories = await db.get_categories()
+        categories, _status = await db.get_categories()
         await callback_query.message.answer(_("Muzqaymoq turini tanlang."),
                                             reply_markup=generate_category_keyboard(categories, user_lang))
         await BuyState.get_category.set()

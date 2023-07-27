@@ -4,14 +4,12 @@ from aiogram import types
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
 from tgbot.config import Config
-from tgbot.db.db_api import get_user
 from tgbot.db.queries import Database
 
 
 class ACLMiddleware(BaseMiddleware):
     async def setup_chat(self, data: dict, user: types.User):
-
-        db_api: Database = Database(data["config"].db.base_url)
+        db_api: Database = data['db']
         user_loc = await db_api.get_user(username=user.username,
                                          user_id=user.id,
                                          fullname=user.first_name,

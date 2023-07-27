@@ -8,24 +8,26 @@ class Database:
 
     def __init__(self, base_url):
         self.base_url = base_url
-        self.session = ClientSession(trust_env=True)
 
     async def make_request(self, method, endpoint, data=None):
         url = self.base_url + endpoint
 
         try:
-            async with self.session.request(method, url, json=data) as resp:
-                # r = await resp.json()
-                # logging.info(r)
-                if resp.status in [200, 201]:
-                    return await resp.json()
-                else:
-                    raise ClientResponseError(resp.request_info,
-                                              resp.history,
-                                              status=resp.status,
-                                              message=resp.reason)
+            async with ClientSession() as session:
+                async with session.request(method, url, json=data) as resp:
+                    # r = await resp.json()
+                    # logging.info(r)
+                    if resp.status in [200, 201]:
+                        return await resp.json(), resp.status
+                    else:
+                        raise ClientResponseError(resp.request_info,
+                                                  resp.history,
+                                                  status=resp.status,
+                                                  message=resp.reason)
         except ClientError as e:
             raise e
+        finally:
+            await session.close()
 
     async def create_user(self, username: str,
                           user_id: int,
@@ -58,21 +60,15 @@ class Database:
                        user_id: int,
                        fullname: str,
                        user_lang: str = "uz", ):
-        url = self.base_url + "/users/%s/" % str(user_id)
-        async with self.session.request("GET", url) as resp:
-            if resp.status == 200:
-                return await resp.json()
-            elif resp.status == 404:
-                return await self.create_user(
-                    username=username,
-                    user_id=user_id,
-                    fullname=fullname,
-                    user_lang=user_lang)
-            else:
-                return None
-
-    async def get_data(self):
-        return await self.make_request("GET", "/users/1/")
+        resp, _status = await self.make_request("GET", "/users/%s/" % str(user_id))
+        if _status != 200:
+            resp, _status = await self.create_user(
+                username=username,
+                user_id=user_id,
+                fullname=fullname,
+                user_lang=user_lang
+            )
+        return resp
 
     async def get_user_locations(self, user_id):
         return await self.make_request("GET",
@@ -104,14 +100,10 @@ class Database:
             f"/products/?category__name_{user_lang}={category}")
 
     async def get_product(self, name, user_lang):
-        async with self.session.request(
-                "GET",
-                self.base_url + f"/product_by_name/{user_lang}/{name}"
-        ) as resp:
-            if resp.status in [200, 201]:
-                return await resp.json()
-            else:
-                return None
+        _resp, status = await self.make_request("GET", f"/product_by_name/{user_lang}/{name}")
+        if status != 200:
+            return _resp
+        return _resp
 
     async def update_product(self, product_id, data):
         return await self.make_request(
@@ -119,7 +111,5 @@ class Database:
             f"/products/{str(product_id)}/", data)
 
     async def create_order(self, data):
+        logging.info(data)
         return await self.make_request("POST", "/orders/", data)
-
-    async def close(self):
-        await self.session.close()

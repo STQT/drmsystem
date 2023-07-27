@@ -15,7 +15,7 @@ _ = i18ns.gettext
 
 
 async def get_my_location_text(m: types.Message, user_lang, db: Database, remove_button=True):
-    locations = await db.get_user_locations(m.from_user.id)
+    locations, _status = await db.get_user_locations(m.from_user.id)
     if locations:
         loc_str = ""
         for num, location in enumerate(locations):
@@ -28,7 +28,7 @@ async def get_my_location_text(m: types.Message, user_lang, db: Database, remove
 
 
 async def get_my_location_for_select(m: types.Message, user_lang, db: Database):
-    locations = await db.get_user_locations(m.from_user.id)
+    locations, _status = await db.get_user_locations(m.from_user.id)
     if locations:
         await m.answer(_("Yetkazib berish manzilni tanlang"), reply_markup=locations_buttons(locations))
     else:

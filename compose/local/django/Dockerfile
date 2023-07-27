@@ -4,7 +4,7 @@ FROM python:3.11.4-slim-bullseye as python
 # Python build stage
 FROM python as python-build-stage
 
-ARG BUILD_ENVIRONMENT=local
+ARG BUILD_ENVIRONMENT=production
 
 # Install apt packages
 RUN apt-get update && apt-get install --no-install-recommends -y \

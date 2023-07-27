@@ -70,6 +70,8 @@ class Database:
                         fullname=fullname,
                         user_lang=user_lang
                     )
+                else:
+                    resp = await resp.json()
                 return resp
 
     async def get_user_locations(self, user_id):

@@ -17,7 +17,7 @@ SECRET_KEY = "django-insecure-92k=)&8m514f=26%01u+fkf$0$-kce^uc66zqrsg=0kqm8b^h5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DJANGO_DEBUG", default=True)
 
-ALLOWED_HOSTS = ["localhost", "django", "icecreambot.itlink.uz"]
+ALLOWED_HOSTS = ["localhost", "django", "drmsystembot.itlink.uz"]
 
 # Application definition
 
@@ -114,8 +114,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = "/var/www/drm.itlink.uz/static"
-MEDIA_ROOT = "/var/www/drm.itlink.uz/media"
+STATIC_ROOT = "/var/www/drmsystembot.itlink.uz/static"
+MEDIA_ROOT = "/var/www/drmsystembot.itlink.uz/media"
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
 
@@ -273,4 +273,4 @@ if DEBUG is False:
         environment=env("SENTRY_ENVIRONMENT", default="production"),
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0),
     )
-    CORS_ALLOWED_ORIGINS = ["https://icecreambot.itlink.uz", ]
+    CORS_ALLOWED_ORIGINS = ["https://drmsystembot.itlink.uz", ]

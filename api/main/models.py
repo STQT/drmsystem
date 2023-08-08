@@ -2,9 +2,6 @@ from django.contrib.auth.models import AbstractBaseUser
 from .managers import CustomUserManager
 from django.db import models
 
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
-from django.conf import settings
 
 
 class CustomUser(AbstractBaseUser):
@@ -58,8 +55,3 @@ class Organization(models.Model):
 
         super(Organization, self).save(*args, **kwargs)
 
-
-@receiver(post_delete, sender=settings.AUTH_USER_MODEL)
-def set_default_user(sender, instance, **kwargs):
-    instance.orders.update(user_id=1)
-    instance.subscribers.update(user_id=1)

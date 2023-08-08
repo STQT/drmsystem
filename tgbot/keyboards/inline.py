@@ -49,9 +49,9 @@ def shopping_cart_clean_kb():
 def approve_delivery_buy(order_id):
     inline_kb = InlineKeyboardMarkup(row_width=2)
     inline_kb.add(
-        InlineKeyboardButton(text="☑️ Принять",
+        InlineKeyboardButton(text="☑️ Мақұлдау",
                              callback_data=f'pro_yes_{order_id}'),
-        InlineKeyboardButton(text=_("✖️ Не принять"),
+        InlineKeyboardButton(text=_("✖️ Қабылдамау"),
                              callback_data=f'pro_no_{order_id}'),
     )
     return inline_kb
@@ -60,7 +60,7 @@ def approve_delivery_buy(order_id):
 def prices_keyboard(data):
     inline_kb = InlineKeyboardMarkup(row_width=2)
     for item in data:
-        text = str(item['days']) + " күн " + str(item['cost']) + " тенге"
+        text = str(item['days']) + " күн " + str(item['cost']) + " теңге"
         button = InlineKeyboardButton(text=text,
                                       callback_data=str(item['id']) + "_" + str(item['days']) + "_" + str(item['cost']))
         inline_kb.insert(button)
@@ -80,7 +80,7 @@ def organizations_keyboard(org_list):
 def upgrade_subscription_kb():
     inline_kb = InlineKeyboardMarkup(row_width=2)
     inline_kb.add(
-        InlineKeyboardButton(text=_("📅 Обновить подписку"),
+        InlineKeyboardButton(text=_("📅 Жазылымды ұзарту"),
                              callback_data=f'upgrade'),
     )
     return inline_kb

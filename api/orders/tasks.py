@@ -124,8 +124,8 @@ def sending_notify_for_expiration_users():
         expiration_time=F('created_at') + ExpressionWrapper(F('days') * timezone.timedelta(days=1),
                                                             output_field=DurationField())
     ).filter(expiration_time__lte=timezone.now() + timezone.timedelta(days=1)).select_related("user")
-    text = ("У вас остался один день до просрочки подписки, успейте оформить подписку "
-            "и вам будет начислен дополнительно 1 день для подписки")
+    text = ("Сіздің жазылымыңыздың бітуіне 1 күн қалды, жазылымды ұзартып үлгеріңіз"
+            "сонда сізге қосымша 1 күн жазылым қосып береміз")
     inline_keyboard = {
         "inline_keyboard": [
             [{"text": "📅 Обновить подписку", "callback_data": "upgrade"}, ]

@@ -16,7 +16,7 @@ async def bot_echo(message: types.Message):
     #
     # await message.answer('\n'.join(text))
     if message.chat.type == types.ChatType.PRIVATE:
-        await message.answer("Выберите раздел.",
+        await message.answer("Төменде берілген батырманы таңдаңыз.",
                              reply_markup=main_menu_keyboard())
         await MainMenuState.get_menu.set()
     else:
@@ -25,7 +25,7 @@ async def bot_echo(message: types.Message):
 
 async def bot_echo_all(message: types.Message, state: FSMContext):
     if message.chat.type == types.ChatType.PRIVATE:
-        await message.answer("Выберите раздел",
+        await message.answer("Төменде берілген батырманы таңдаңыз",
                              reply_markup=main_menu_keyboard())
         await MainMenuState.get_menu.set()
     else:

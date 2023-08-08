@@ -12,18 +12,18 @@ from tgbot.misc.states import MainMenuState
 
 async def main_menu(m: Message, db: Database):
     if m.chat.type == types.ChatType.PRIVATE:
-        if m.text == "Мои заявки":
+        if m.text == "Менің өтініштерім":
             applications = await db.get_user_orders(m.from_user.id)
             logging.info(applications[0])
             if not applications[0]:
-                await m.answer("У вас нет существующих заявок")
+                await m.answer("Сізде ешқандай өтініш жоқ")
             else:
                 applications = applications[0]
                 for app in applications:
                     date = app['created_at']
                     input_date_time = datetime.fromisoformat(date[:-6])
                     human_readable_date_time = input_date_time.strftime("%d-%m-%Y %H:%M")
-                    status = "Одобрено" if app["is_approved"] else "Отказано"
+                    status = "Мақұлданды" if app["is_approved"] else "Қабылданбады"
                     await m.answer_photo(
                         app["photo_uri"],
                         caption=f"Заявка: {app['id']}\n"
@@ -32,7 +32,7 @@ async def main_menu(m: Message, db: Database):
                                 f"Статус: {status}\n"
                                 f"Создано: {human_readable_date_time}"
                     )
-        elif m.text == "Моя подписка":
+        elif m.text == "Менің жазылымым":
             subscribe = await db.get_user_subscribe(m.from_user.id)
             if subscribe[0]:
                 created_at_datetime = datetime.strptime(subscribe[0]["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
@@ -47,9 +47,9 @@ async def main_menu(m: Message, db: Database):
                 await m.answer(text_string,
                                reply_markup=upgrade_subscription_kb())
             else:
-                await m.answer("Нет у вас активных подписок")
+                await m.answer("Сізде белсенді жазылым жоқ")
         else:
-            await m.answer("Выберите раздел",
+            await m.answer("Төменде берілген батырманы таңдаңыз",
                            reply_markup=main_menu_keyboard())
             await MainMenuState.get_menu.set()
     else:

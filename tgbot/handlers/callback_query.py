@@ -35,11 +35,11 @@ async def pro_callback(callback_query: CallbackQuery, db: Database, config: Conf
     await callback_query.answer()
     _pro, answer, order_id = callback_query.data.split('_')
     user_mention = callback_query.from_user.mention
-    new_text = callback_query.message.text + f"\nМодерировал: {user_mention}"
+    new_text = callback_query.message.text + f"\nҚабылдаушы: {user_mention}"
     if answer == "yes":
-        new_text += f"\nЧек: <b>{order_id}</b>"
+        new_text += f"\nЖазба: <b>{order_id}</b>"
     else:
-        new_text += "\n<b>Отказано в подписке</b>"
+        new_text += "\n<b>Жазылым қабылданбады</b>"
     await callback_query.message.edit_text(new_text)
 
     edit_dict = {
@@ -56,10 +56,10 @@ async def upgrade_callback(callback_query: CallbackQuery, db: Database, config: 
     await callback_query.answer()
     organizations = await db.get_organizations_list()
     if organizations[0]:
-        await callback_query.message.edit_text("Какую студию вы хотите поддержать?",
+        await callback_query.message.edit_text("Қайсы дыбыстаушы студияны қолдап, жазылымды алғыңыз келеді?(Жазылым ақшасы сол студияға түседі)",
                                                reply_markup=organizations_keyboard(organizations[0]))
     else:
-        await callback_query.message.edit_text("В списке нет организаций")
+        await callback_query.message.edit_text("Жазбада ешқандай студия жоқ")
 
 
 async def get_organization_callback(callback_query: CallbackQuery, db: Database, config: Config, state: FSMContext):

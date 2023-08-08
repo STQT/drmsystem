@@ -44,7 +44,7 @@ class OrderSerializer(serializers.ModelSerializer):
             # Payload for the request
             data = {
                 "chat_id": instance.user.id,
-                "text": f"Вам отказали в подписке"
+                "text": f"Сіздің жазылымыңыз қабылданбады"
             }
             response = requests.post(url, data=data)
 

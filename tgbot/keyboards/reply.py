@@ -7,5 +7,5 @@ _ = i18ns.gettext
 def main_menu_keyboard():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(KeyboardButton(text=_("Менің жазылымым")))
-    keyboard.add(KeyboardButton(text=_("Менің өтінішім")))
+    keyboard.add(KeyboardButton(text=_("Менің өтініштерім")))
     return keyboard

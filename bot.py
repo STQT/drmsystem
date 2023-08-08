@@ -49,7 +49,7 @@ async def main():
         from sentry_sdk.integrations.asyncio import AsyncioIntegration
         sentry_sdk.init(dsn=config.misc.sentry_dsn, integrations=[AsyncioIntegration()])
 
-    storage = RedisStorage2(host="redis", port=6380, db=0)
+    storage = RedisStorage2(host="redis", port=6381, db=0)
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     dp = Dispatcher(bot, storage=storage)
     logging.info(config)

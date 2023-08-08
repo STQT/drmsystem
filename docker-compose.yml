@@ -21,7 +21,7 @@ services:
     env_file:
       - .env
     ports:
-      - '8040:8000'
+      - '8050:8000'
     environment:
       - DJANGO_DEBUG=false  # Set the DEBUG environment variable
     command: /start

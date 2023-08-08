@@ -1,113 +1,62 @@
 import re
-import logging
 
-from aiogram import types
+from datetime import datetime, timedelta
+
+import aiohttp
+from aiogram import Bot
 from aiogram.types import Message
+from aiogram.utils.exceptions import WrongFileIdentifier
 
 from tgbot.config import Config
 from tgbot.db.queries import Database
-from tgbot.db.redis_db import get_redis, get_user_shopping_cart, get_cart_items_text, get_cart_items_list
-from tgbot.keyboards.inline import shopping_cart_kb
-from tgbot.keyboards.reply import address_clear, back_button, locations_buttons
+from tgbot.keyboards.inline import prices_keyboard
 from tgbot.misc.i18n import i18ns
 
 _ = i18ns.gettext
 
 
-async def get_my_location_text(m: types.Message, user_lang, db: Database, remove_button=True):
-    locations, _status = await db.get_user_locations(m.from_user.id)
-    if locations:
-        loc_str = ""
-        for num, location in enumerate(locations):
-            loc_str += str(num + 1) + ". " + location['name'] + "\n"
-        await m.answer(loc_str)
-        await m.answer(_("O'z manzillaringizni tozalamoqchimisiz?"),
-                       reply_markup=address_clear())
-    else:
-        await m.answer(_("Manzillar mavjud emas"), reply_markup=back_button(locale=user_lang))
-
-
-async def get_my_location_for_select(m: types.Message, user_lang, db: Database):
-    locations, _status = await db.get_user_locations(m.from_user.id)
-    if locations:
-        await m.answer(_("Yetkazib berish manzilni tanlang"), reply_markup=locations_buttons(locations))
-    else:
-        await m.answer(_("Manzillar mavjud emas"), reply_markup=back_button(locale=user_lang))
-
-
-async def get_shopping_cart(m: types.Message, db: Database, user_lang, user_id=None):
-    cart_items = await get_user_shopping_cart(user_id if user_id else m.from_user.id)
-    if not cart_items:
-        await m.answer(_("Savat bo'sh"))
-    else:
-        cart_items_text, total_price = get_cart_items_text(cart_items)
-        await m.answer(
-            _(
-                "Savatda:\n"
-                "{cart_items_text}"
-                "Mahsulotlar: {total_price} so'm\n"
-                "Jami: {cost} so'm"
-            ).format(
-                cart_items_text=cart_items_text,
-                total_price=total_price,
-                cost=total_price
-            ),
-            reply_markup=shopping_cart_kb(user_lang))
-
-
-def collect_data_for_request(data, cart_items, check_id=None):
-    order_data = {
-        "address": data["address"].replace("'", "´").replace('"', "”"),
-        "check_id": check_id if check_id else "Naqd pul",
-        "phone": data["contact"],
-        "payment_method": data["payment_method"],
-        "cost": data["cost"],
-    }
-    product_list: list[dict] = get_cart_items_list(cart_items)
-    items_list = []
-    for item in product_list:
-        items_list.append({
-            "product_name": item["name"].replace("'", "´").replace('"', "”"),
-            "count": item["count"]
-        })
-    order_data.update({"products": items_list})
-    return order_data
-
-
-async def update_server_photo_uri(db: Database, product_id, file_id):
-    await db.update_product(product_id, {
+async def update_server_photo_uri(db: Database, org_slug, file_id):
+    await db.update_organization(org_slug, {
         "photo_uri": file_id,
         "photo_updated": False
     })
 
 
-async def send_to_group_order(m: Message, config: Config, data, cart_items_text, total_price, db: Database):
-    await m.bot.send_message(
-        config.tg_bot.group_id,
-        _(
-            "Yangi buyurtma:\n"
-            "Manzil: {address}\n\n"
-            "{cart_items_text}\n"
-            "To'lov turi: {payment_method}\n\n"
-            "Mahsulotlar: {total_price} so'm\n"
-            "Telefon raqam: {phone}\n"
-            "Jami: {cost} so'm"
-        ).format(
-            address=data["address"],
-            payment_method=data["payment_method"],
-            cart_items_text=cart_items_text,
-            total_price=total_price,
-            phone=data['contact'],
-            cost=total_price
-        ))
-
-
-def validate_uzbek_phone_number(number):
-    # Regular expression pattern for Uzbekistan phone numbers
-    pattern = r'^\+998 \d{2} \d{3} \d{2} \d{2}$'
-
-    # Check if the number matches the pattern
-    if re.match(pattern, number):
-        return True
+async def send_answer_organization(m: Message, db: Database, org_slug, config: Config,
+                                   callback_query=None):
+    if callback_query:
+        await callback_query.message.delete()
+    org = await db.get_organization_obj(org_slug)
+    org = org[0]
+    if org is None:
+        org = await db.get_organization_obj("main")
+        org = org[0]
+    prices = await db.get_prices()
+    caption = (f"{org['name']}\n"
+               "Выберите стоимость подписки")
+    reply_markup = prices_keyboard(prices[0])
+    photo_uri = org.get("photo_uri", "error")
+    if not org["photo_uri"] or org["photo_updated"] is True:
+        url = org['photo']
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    image_bytes = await response.read()
+                    photo_resp = await m.answer_photo(photo=image_bytes, reply_markup=reply_markup, caption=caption)
+                    await update_server_photo_uri(db, org_slug=org['slug'], file_id=photo_resp.photo[-1].file_id)
     else:
-        return False
+        try:
+            await m.answer_photo(photo_uri, reply_markup=reply_markup, caption=caption)
+        except WrongFileIdentifier:
+            photo_resp = await m.answer_photo(org['photo'], reply_markup=reply_markup, caption=caption)
+            await update_server_photo_uri(db, org_slug=org['slug'], file_id=photo_resp.photo[-1].file_id)
+    return org['slug']
+
+
+async def create_invite_link(bot: Bot, channel_id, name):
+    expire_date = datetime.now() + timedelta(days=1)
+    invite_link = await bot.create_chat_invite_link(chat_id=channel_id,
+                                                    expire_date=expire_date,
+                                                    member_limit=1,
+                                                    name=name)
+    return invite_link.invite_link

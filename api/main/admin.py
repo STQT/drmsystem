@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-
-from .models import Product, Category
+from .models import Organization
 
 User = get_user_model()
 
@@ -22,13 +21,6 @@ class UserAdmin(admin.ModelAdmin):
         return False
 
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name_uz", "category", "name_ru", "name_en"]
-    readonly_fields = ("photo_uri", "photo_updated")
-    list_select_related = ["category"]
-
-
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
     ...

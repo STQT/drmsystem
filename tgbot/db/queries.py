@@ -56,63 +56,84 @@ class Database:
         return await self.make_request("PATCH",
                                        "/users/" + str(user_id) + "/", data)
 
-    async def get_user(self, username: str,
-                       user_id: int,
-                       fullname: str,
-                       user_lang: str = "uz", ):
+    async def get_user(self, user_id: int):
         url = self.base_url + "/users/%s/" % str(user_id)
         async with ClientSession() as session:
             async with session.request('GET', url) as resp:
                 if resp.status not in [200, 201]:
-                    resp, _status = await self.create_user(
-                        username=username,
-                        user_id=user_id,
-                        fullname=fullname,
-                        user_lang=user_lang
-                    )
+                    # resp, _status = await self.create_user(
+                    #     username=username,
+                    #     user_id=user_id,
+                    #     fullname=fullname,
+                    #     user_lang=user_lang
+                    # )
+                    return None, None
                 else:
-                    resp = await resp.json()
-                return resp
+                    response = await resp.json()
+                return response, resp.status
 
-    async def get_user_locations(self, user_id):
-        return await self.make_request("GET",
-                                       f"/users/{user_id}/get_locations/")
+    async def create_or_update_user(self, user_id, fullname, username):
+        return await self.make_request("POST", "/users/",
+                                       {'fullname': fullname, 'username': username, 'id': user_id,
+                                        'stopped': False, 'password': '12345678aA'})
 
-    async def delete_user_locations(self, user_id):
-        return await self.make_request("GET",
-                                       f"/users/{user_id}/clear_locations/")
+    async def get_organizations_list(self):
+        return await self.make_request("GET", "/organizations/")
 
-    async def create_user_location(self,
-                                   user_id: int,
-                                   longitude: float,
-                                   latitude: float,
-                                   address: str):
-        data = {
-            "user_id": user_id,
-            "longitude": longitude,
-            "latitude": latitude,
-            "name": address.replace("'", "´").replace('"', "”")
-        }
-        return await self.make_request("POST", "/user-locations/", data)
+    async def get_organization_obj(self, slug):
+        url = self.base_url + f"/organizations/{str(slug)}/"
 
-    async def get_categories(self):
-        return await self.make_request("GET", "/categories/")
-
-    async def get_products(self, category, user_lang):
-        return await self.make_request(
-            "GET",
-            f"/products/?category__name_{user_lang}={category}")
-
-    async def get_product(self, name, user_lang):
-        _resp, status = await self.make_request("GET", f"/product_by_name/{user_lang}/{name}")
-        if status != 200:
-            return _resp
-        return _resp
-
-    async def update_product(self, product_id, data):
-        return await self.make_request(
-            "PATCH",
-            f"/products/{str(product_id)}/", data)
+        try:
+            async with ClientSession() as session:
+                async with session.request("GET", url) as resp:
+                    # r = await resp.json()
+                    # logging.info(r)
+                    if resp.status in [200, 201]:
+                        return await resp.json(), resp.status
+                    elif resp.status == 404:
+                        return None, resp.status
+                    else:
+                        raise ClientResponseError(resp.request_info,
+                                                  resp.history,
+                                                  status=resp.status,
+                                                  message=resp.reason)
+        except ClientError as e:
+            raise e
+        finally:
+            await session.close()
 
     async def create_order(self, data):
-        return await self.make_request("POST", "/orders/", data)
+        url = self.base_url + "/orders/"
+        try:
+            async with ClientSession() as session:
+                async with session.request("POST", url, json=data) as resp:
+                    if resp.status in [200, 201]:
+                        return await resp.json(), resp.status
+                    else:
+                        return None, resp.status
+        finally:
+            await session.close()
+
+    async def update_order(self, order_id, data):
+        return await self.make_request("PATCH", f"/orders/{order_id}/", data)
+
+    async def get_user_orders(self, user_id):
+        return await self.make_request("GET", f"/orders/?user__id={user_id}")
+
+    async def get_prices(self):
+        return await self.make_request("GET", "/prices/")
+
+    async def update_organization(self, product_id, data):
+        return await self.make_request(
+            "PATCH",
+            f"/organizations/{str(product_id)}/", data)
+
+    async def get_user_subscribe(self, user_id):
+        url = self.base_url + f"/subscriber/{str(user_id)}/"
+        async with ClientSession() as session:
+            async with session.request('GET', url) as resp:
+                if resp.status not in [200, 201]:
+                    return None, None
+                else:
+                    response = await resp.json()
+                return response, resp.status

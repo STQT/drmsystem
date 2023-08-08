@@ -1,202 +1,82 @@
+import logging
+
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery, Message
 
+from tgbot.config import Config
 from tgbot.db.queries import Database
-from tgbot.db.redis_db import get_redis, close_redis, get_user_shopping_cart, get_cart_items_text
-from tgbot.keyboards.inline import product_inline_kb, shopping_cart_clean_kb, approve_delivery_buy
-from tgbot.keyboards.reply import generate_category_keyboard, menu_keyboards, \
-    get_contact_keyboard, main_menu_keyboard
+from tgbot.keyboards.inline import organizations_keyboard
 from tgbot.misc.i18n import i18ns
-from tgbot.misc.states import BuyState, MainMenuState
-from tgbot.misc.utils import get_shopping_cart
+from tgbot.misc.states import UserRegisterState
+from tgbot.misc.utils import send_answer_organization
 
 _ = i18ns.gettext
 
 
-async def increase_count(callback_query: CallbackQuery):
-    # Increase count logic here
-
-    _increase, count, product_id = callback_query.data.split('_')
-    count = int(count) + 1
-    await callback_query.message.edit_reply_markup(
-        reply_markup=product_inline_kb(product_id, count)
-    )
-    await callback_query.answer(_("{count} ta").format(count=count))
-
-
-async def decrease_count(callback_query: CallbackQuery):
-    # Decrease count logic here
-    _decrease, count, product_id = callback_query.data.split('_')
-    if count != "1":
-        count = int(count) - 1
-        await callback_query.message.edit_reply_markup(
-            reply_markup=product_inline_kb(product_id, count)
-        )
-    await callback_query.answer(_("{count} ta").format(count=count))
-
-
-async def show_count(callback_query: CallbackQuery):
-    # Show count logic here
-    await callback_query.answer(_("ta"))
-
-
-async def add_to_cart(callback_query: CallbackQuery, state: FSMContext, user_lang, db: Database):
-    # Add to cart logic here
-    _cart, count, product_id = callback_query.data.split('_')
-    await callback_query.answer(_("Savatga qo'shildi"))
-    await callback_query.message.edit_caption(_("Qo'shildi: {count} ta").format(count=count))
+async def process_callback(callback_query: CallbackQuery, db: Database, state: FSMContext):
+    await callback_query.answer(text="Выбрано")
     data = await state.get_data()
+    org = await db.get_organization_obj(data['org_slug'])
+    _id, days, cost = callback_query.data.split('_')
+    await state.update_data(price_id=_id,
+                            days=days,
+                            cost=cost,
+                            group_id=org[0]['group_id'])
+    await callback_query.message.delete()
+    text = (f"Вы выбираете подписку на {days} дней за {cost}\n"
+            f"Для того, чтобы оформить подписку отправьте деньги на Kaspi номер <b>{org[0]['kaspi']}</b>\n"
+            f"После успешной оплаты пришлите сюда доказательство о своей оплате (скриншот или айди платежа)")
+    await callback_query.message.answer(text)
+    await UserRegisterState.get_payment.set()
 
-    redis = await get_redis()
-    key = f"shopping_cart:{callback_query.from_user.id}"
-    category = data.get("category")
-    try:
-        item_key = f"{data['product']}:{count}"
-        await redis.hset(key, item_key, data['price'])
-    except Exception as _e:  # noqa
-        await callback_query.message.answer(_("Server bilan ulanishda muammo bo'ldi. Boshidan uruning"))
-    finally:
-        await close_redis(redis)
-    if category:
-        products, _status = await db.get_products(category=category, user_lang=user_lang)
-        await callback_query.message.answer(_("Muzqaymoqni tanlang"),
-                                            reply_markup=generate_category_keyboard(products, user_lang))
-        await BuyState.get_product.set()
+
+async def pro_callback(callback_query: CallbackQuery, db: Database, config: Config):
+    await callback_query.answer()
+    _pro, answer, order_id = callback_query.data.split('_')
+    user_mention = callback_query.from_user.mention
+    new_text = callback_query.message.text + f"\nМодерировал: {user_mention}"
+    if answer == "yes":
+        new_text += f"\nЧек: <b>{order_id}</b>"
     else:
-        categories, _status = await db.get_categories()
-        await callback_query.message.answer(_("Muzqaymoq turini tanlang."),
-                                            reply_markup=generate_category_keyboard(categories, user_lang))
-        await BuyState.get_category.set()
+        new_text += "\n<b>Отказано в подписке</b>"
+    await callback_query.message.edit_text(new_text)
+
+    edit_dict = {
+        "yes": True,
+        "no": False,
+    }
+    await db.update_order(order_id, {
+        "is_approved": edit_dict[answer],
+        "moderated_user": callback_query.from_user.full_name,
+    })
 
 
-async def buy_cart(callback_query: CallbackQuery):
+async def upgrade_callback(callback_query: CallbackQuery, db: Database, config: Config):
     await callback_query.answer()
-    cart_items = await get_user_shopping_cart(callback_query.from_user.id)
-    _cart_items_text, total_price = get_cart_items_text(cart_items)
-    if int(total_price) < 200000:
-        await callback_query.message.delete()
-        await callback_query.message.answer(
-            _("Maxsulotlarning umumiy qiymati 200 000 so'mdan kam bo'lgani uchun, "
-              "Siz ushbu maxsulotlarni yetkazib berish (dostavka) uchun xaq to'laysiz.\n"
-              "Rozimisiz?"),
-            reply_markup=approve_delivery_buy())
+    organizations = await db.get_organizations_list()
+    if organizations[0]:
+        await callback_query.message.edit_text("Какую студию вы хотите поддержать?",
+                                               reply_markup=organizations_keyboard(organizations[0]))
     else:
-        await callback_query.message.answer(
-            _("Telefon raqamingizni quyidagi formatda "
-              "yuboring yoki kiriting: +998 ** *** ** **\n"
-              "Eslatma: Agar siz onlayn buyurtma uchun Click "
-              "yoki Payme orqali toʻlashni rejalashtirmoqchi "
-              "boʻlsangiz, tegishli xizmatda hisob qaydnomasi "
-              "roʻyxatdan oʻtgan telefon raqamini koʻrsating."),
-            reply_markup=get_contact_keyboard())
-        await BuyState.get_phone.set()
+        await callback_query.message.edit_text("В списке нет организаций")
 
 
-async def close_cart(callback_query: CallbackQuery):
-    # Show count logic here
-    await callback_query.answer(_("Davom eting"))
-    await callback_query.message.delete()
-
-
-async def clean_cart(callback_query: CallbackQuery):
-    # Show count logic here
-    await callback_query.answer(_("Javob bering"))
-    await callback_query.message.edit_text(text=_("Rostdan ham savatni tozalamoqchimisiz?"),
-                                           reply_markup=shopping_cart_clean_kb())
-
-
-async def yes_clean(callback_query: CallbackQuery):
-    redis = await get_redis()
-    key = f"shopping_cart:{callback_query.from_user.id}"
-
-    try:
-        # Delete the entire cart from Redis
-        await redis.delete(key)
-    finally:
-        await close_redis(redis)
-    await callback_query.answer(_("Tozalandi"))
-    await callback_query.message.delete()
-    await callback_query.message.answer(_("📍 Geolokatsiyani yuboring yoki yetkazib berish manzilini tanlang"),
-                                        reply_markup=menu_keyboards())
-    await BuyState.get_location.set()
-
-
-async def no_clean(callback_query: CallbackQuery, db: Database, user_lang):
+async def get_organization_callback(callback_query: CallbackQuery, db: Database, config: Config, state: FSMContext):
     await callback_query.answer()
-    await callback_query.message.delete()
-    await get_shopping_cart(callback_query.message, db, user_lang, user_id=callback_query.from_user.id)
-
-
-async def delivery_yes(callback_query: CallbackQuery, db: Database, user_lang):
-    await callback_query.answer()
-    await callback_query.message.answer(
-        _("Telefon raqamingizni quyidagi formatda "
-          "yuboring yoki kiriting: +998 ** *** ** **\n"
-          "Eslatma: Agar siz onlayn buyurtma uchun Click "
-          "yoki Payme orqali toʻlashni rejalashtirmoqchi "
-          "boʻlsangiz, tegishli xizmatda hisob qaydnomasi "
-          "roʻyxatdan oʻtgan telefon raqamini koʻrsating."),
-        reply_markup=get_contact_keyboard())
-    await BuyState.get_phone.set()
-
-
-async def delivery_no(callback_query: CallbackQuery, user_lang):
-    await callback_query.answer()
-    await callback_query.message.delete()
-    redis = await get_redis()
-    key = f"shopping_cart:{callback_query.from_user.id}"
-    try:
-        # Delete the entire cart from Redis
-        await redis.delete(key)
-    finally:
-        await close_redis(redis)
-    await callback_query.message.answer(_("Bo'limni tanlang", locale=user_lang),
-                                        reply_markup=main_menu_keyboard(user_lang))
-    await MainMenuState.get_menu.set()
-
-
-async def delivery_back(callback_query: CallbackQuery, user_lang, db: Database):
-    await callback_query.answer()
-    await callback_query.message.delete()
-    await get_shopping_cart(callback_query.message, db, user_lang, user_id=callback_query.from_user.id)
+    _org, org_slug = callback_query.data.split('_')
+    org_slug = await send_answer_organization(callback_query.message, db, org_slug, config, callback_query)
+    await UserRegisterState.send_tel.set()
+    await state.update_data(org_slug=org_slug)
 
 
 def register_callback(dp: Dispatcher):
-    dp.register_callback_query_handler(increase_count,
-                                       lambda c: c.data.startswith('increase'),
+    dp.register_callback_query_handler(pro_callback,
+                                       lambda c: c.data.startswith('pro'),
                                        state="*")
-    dp.register_callback_query_handler(decrease_count,
-                                       lambda c: c.data.startswith('decrease'),
+    dp.register_callback_query_handler(upgrade_callback, lambda c: c.data == "upgrade",
                                        state="*")
-    dp.register_callback_query_handler(show_count,
-                                       lambda c: c.data == 'count',
+    dp.register_callback_query_handler(get_organization_callback, lambda c: c.data.startswith('org_'),
                                        state="*")
-    dp.register_callback_query_handler(add_to_cart,
-                                       lambda c: c.data.startswith('addtocart'),
-                                       state="*")
-    dp.register_callback_query_handler(close_cart,
-                                       lambda c: c.data.startswith('close'),
-                                       state="*")
-    dp.register_callback_query_handler(clean_cart,
-                                       lambda c: c.data.startswith('clean_trash'),
-                                       state="*")
-    dp.register_callback_query_handler(buy_cart,
-                                       lambda c: c.data.startswith('buy'),
-                                       state="*")
-    dp.register_callback_query_handler(yes_clean,
-                                       lambda c: c.data == 'yes',
-                                       state="*")
-    dp.register_callback_query_handler(no_clean,
-                                       lambda c: c.data == 'no',
-                                       state="*")
-    dp.register_callback_query_handler(delivery_yes,
-                                       lambda c: c.data == 'delivery_yes',
-                                       state="*")
-    dp.register_callback_query_handler(delivery_no,
-                                       lambda c: c.data == 'delivery_no',
-                                       state="*")
-
-    dp.register_callback_query_handler(delivery_back,
-                                       lambda c: c.data == 'delivery_back',
+    dp.register_callback_query_handler(process_callback,
                                        state="*")

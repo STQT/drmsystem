@@ -1,29 +1,29 @@
 version: '3.3'
 
 volumes:
-  icecream_local_postgres_data: { }
-  icecream_local_postgres_data_backups: { }
+  drm_prod_postgres_data: { }
+  drm_prod_postgres_data_backups: { }
   redis_data:
 
 services:
-  django:
+  django: &django
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
 
-    image: icecream_local_django
-    container_name: icecream_local_django
+    image: drm_production_django
+    container_name: drm_production_django
     depends_on:
       - postgres
     volumes:
       - ./api:/app:z
-      - /var/www/icecreambot.itlink.uz:/var/www/icecreambot.itlink.uz:z
+      - /var/www/drm.itlink.uz:/var/www/drm.itlink.uz:z
     env_file:
       - .env
     ports:
       - '8040:8000'
     environment:
-      - DJANGO_DEBUG=false  # Set the DEBUG environment variable
+      - DJANGO_DEBUG=true  # Set the DEBUG environment variable
     command: /start
     networks:
       - tg_bot
@@ -51,11 +51,11 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
-    image: icecream_production_postgres
-    container_name: icecream_local_postgres
+    image: drm_production
+    container_name: drm_production
     volumes:
-      - icecream_local_postgres_data:/var/lib/postgresql/data
-      - icecream_local_postgres_data_backups:/backups
+      - drm_prod_postgres_data:/var/lib/postgresql/data
+      - drm_prod_postgres_data_backups:/backups
     env_file:
       - .env
     networks:
@@ -67,9 +67,29 @@ services:
       - "6380:6380"
     volumes:
       - redis_data:/data
-    command: redis-server --port 6380 --appendonly yes
+    command: redis-server --port 6380
     networks:
       - tg_bot
+
+  celeryworkerbeat:
+    <<: *django
+    image: drm_celeryworkerbeat
+    container_name: drm_celeryworkerbeat
+    depends_on:
+      - redis
+      - postgres
+    ports: [ ]
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: drm_celerybeat
+    container_name: drm_celerybeat
+    depends_on:
+      - redis
+      - postgres
+    ports: [ ]
+    command: /start-celerybeat
 
 networks:
   tg_bot:

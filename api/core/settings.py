@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "django_filters",
     "main",
     "orders",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -70,7 +71,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
-        default="postgres://localhost/icecreambot",
+        default="postgres://localhost/drmbot",
     ),
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
@@ -103,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "ru-RU"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Almaty"
 
 USE_I18N = True
 
@@ -113,8 +114,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = "/var/www/icecreambot.itlink.uz/static"
-MEDIA_ROOT = "/var/www/icecreambot.itlink.uz/media"
+STATIC_ROOT = "/var/www/drm.itlink.uz/static"
+MEDIA_ROOT = "/var/www/drm.itlink.uz/media"
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
 
@@ -129,11 +130,46 @@ BOT_USERNAME = env("BOT_USERNAME", default="kaireke_sultan")
 # ------------------------------------------------------------------------------
 # Django Admin URL regex.
 ADMIN_URL = env("ADMIN_URL")
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+}
+
+if USE_TZ:
+    # https://docs.celeryq.dev/en/stable/userguide/configuration.html#std:setting-timezone
+    CELERY_TIMEZONE = TIME_ZONE
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#std:setting-broker_url
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#std:setting-result_backend
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#std:setting-accept_content
+CELERY_ACCEPT_CONTENT = ["json"]
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#std:setting-task_serializer
+CELERY_TASK_SERIALIZER = "json"
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#std:setting-result_serializer
+CELERY_RESULT_SERIALIZER = "json"
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#task-time-limit
+# TODO: set to whatever value is adequate in your circumstances
+CELERY_TASK_TIME_LIMIT = 5 * 60
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#task-soft-time-limit
+# TODO: set to whatever value is adequate in your circumstances
+CELERY_TASK_SOFT_TIME_LIMIT = 60
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#beat-scheduler
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+TELEGRAM_BOT_TOKEN = env("BOT_TOKEN")
+TELEGRAM_BOT_CONTENT_CHAT_ID = env("CHANNEL_ID")
+
 if DEBUG is False:
     try:
         import sentry_sdk
+        from sentry_sdk.integrations.celery import CeleryIntegration
         from sentry_sdk.integrations.django import DjangoIntegration
         from sentry_sdk.integrations.logging import LoggingIntegration
+        from sentry_sdk.integrations.redis import RedisIntegration
     except ImportError:
         ...
 
@@ -228,6 +264,8 @@ if DEBUG is False:
     integrations = [
         sentry_logging,
         DjangoIntegration(),
+        CeleryIntegration(),
+        RedisIntegration(),
     ]
     sentry_sdk.init(
         dsn=SENTRY_DSN,

@@ -16,12 +16,10 @@ class TgBot:
     token: str
     admin_ids: list[int]
     group_id: str
-
+    channel_id: str
 
 @dataclass
 class Miscellaneous:
-    payme: str
-    click: str
     sentry_dsn: str
 
 
@@ -42,13 +40,12 @@ def load_config(path: str = None):
             token=env.str("BOT_TOKEN"),
             admin_ids=list(map(int, env.list("ADMINS"))),
             group_id=env.str("GROUP_ID"),
+            channel_id=env.str("CHANNEL_ID"),
         ),
         db=DbConfig(
             base_url=env.str("API_BASE_URL")
         ),
         misc=Miscellaneous(
-            payme=env.str('PAYME'),
-            click=env.str('CLICK'),
             sentry_dsn=env.str('BOT_SENTRY_DSN'),
         )
     )

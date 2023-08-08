@@ -46,16 +46,41 @@ def shopping_cart_clean_kb():
     return inline_kb
 
 
-def approve_delivery_buy():
+def approve_delivery_buy(order_id):
     inline_kb = InlineKeyboardMarkup(row_width=2)
     inline_kb.add(
-        InlineKeyboardButton(text="☑️ Xa",
-                             callback_data='delivery_yes'),
-        InlineKeyboardButton(text=_("✖️ Yo'q"),
-                             callback_data='delivery_no'),
+        InlineKeyboardButton(text="☑️ Принять",
+                             callback_data=f'pro_yes_{order_id}'),
+        InlineKeyboardButton(text=_("✖️ Не принять"),
+                             callback_data=f'pro_no_{order_id}'),
     )
+    return inline_kb
+
+
+def prices_keyboard(data):
+    inline_kb = InlineKeyboardMarkup(row_width=2)
+    for item in data:
+        text = str(item['days']) + " күн " + str(item['cost']) + " тенге"
+        button = InlineKeyboardButton(text=text,
+                                      callback_data=str(item['id']) + "_" + str(item['days']) + "_" + str(item['cost']))
+        inline_kb.insert(button)
+    return inline_kb
+
+
+def organizations_keyboard(org_list):
+    inline_kb = InlineKeyboardMarkup(row_width=1)
+    for item in org_list:
+        text = "Студия: " + item['name']
+        button = InlineKeyboardButton(text=text,
+                                      callback_data="org_" + item['slug'])
+        inline_kb.insert(button)
+    return inline_kb
+
+
+def upgrade_subscription_kb():
+    inline_kb = InlineKeyboardMarkup(row_width=2)
     inline_kb.add(
-        InlineKeyboardButton(text="⬅️ Ortga",
-                             callback_data='delivery_back')
+        InlineKeyboardButton(text=_("📅 Обновить подписку"),
+                             callback_data=f'upgrade'),
     )
     return inline_kb

@@ -1,32 +1,47 @@
-import aiohttp
 import asyncio
 
-async def create_order():
-    url = "https://icecreambot.itlink.uz/v1/orders/"
-    headers = {"Content-Type": "application/json"}
-    data = {
-        "address": "9A, Mirobod ko'chasi, Hamid Sulaymonov mahallasi, Yakkasaroy Tumani, Toshkent, 100000, Oʻzbekiston",
-        "check_id": "Naqd pul",
-        "phone": "+77473793994",
-        "payment_method": "Naqd pul",
-        "cost": 13333,
-        "products": [
-            {
-                "product_lang": "uz",
-                "product_name": "Krem-bruli muzqaymoq",
-                "count": "1"
-            }
-        ]
-    }
+import aiohttp
+import os  # Import the os module to work with file paths
+from aiogram import Bot, types, Dispatcher
+import logging
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=headers, json=data) as response:
-            if response.status in [200, 201]:
-                result = await response.json()
-                print(result)
-            else:
-                print(f"Request failed with status: {response.status} - {response.reason}")
+API_TOKEN = '6522526477:AAF2Tt50hzFVeHTTyeJJ1ar8rKs60cueDBg'
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher(bot)
+# Enable logging to see the detailed log of what's happening
+logging.basicConfig(level=logging.INFO)
 
-# Run the asyncio event loop to execute the async function
-loop = asyncio.get_event_loop()
-loop.run_until_complete(create_order())
+
+# async def upload_photo_to_api(photo_path):
+#     url = "http://your_drf_api_endpoint/photo_upload/"  # Replace with your DRF API endpoint
+#
+#     # Upload the photo to your DRF API using aiohttp
+#     async with aiohttp.ClientSession() as session:
+#         async with session.post(url, data={'photo': open(photo_path, 'rb')}) as response:
+#             if response.status == 201:
+#                 logging.info("Photo uploaded successfully!")
+#             else:
+#                 logging.error("Failed to upload photo:", await response.text())
+
+
+@dp.message_handler(content_types=[types.ContentType.PHOTO])
+async def handle_photo(message: types.Message):
+    # Get the largest photo size available (last item in the list)
+    photo = message.photo[-1]
+
+    # Download the photo using the file ID
+    photo_file = await message.photo[-1].download()
+    print(photo_file)
+
+
+
+    # Upload the photo to your DRF API
+    # await upload_photo_to_api(absolute_photo_path)
+
+
+async def main():
+    await dp.start_polling()
+
+
+if __name__ == '__main__':
+    asyncio.run(main())

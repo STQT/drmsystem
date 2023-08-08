@@ -9,7 +9,7 @@ urlpatterns = [
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-admin.site.site_title = "Dashboard Svitlogorie"
-admin.site.site_header = "Dashboard Svitlogorie"
+admin.site.site_title = "Dashboard"
+admin.site.site_header = "Dashboard"
 admin.site.site_url = "https://t.me/" + settings.BOT_USERNAME
-admin.site.index_title = "Svitlogorie.ru"
+admin.site.index_title = "Dopaminevoice.kz"

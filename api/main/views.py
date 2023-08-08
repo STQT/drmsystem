@@ -1,79 +1,53 @@
-from django.http import Http404
-from django_filters import rest_framework as filters
 from rest_framework import mixins, viewsets, generics
-from rest_framework.decorators import action
 from rest_framework.response import Response
-
-from .models import Category, Product
-from .serializers import UserSerializer, UserLocationsSerializer, CategorySerializer, ProductSerializer
 from django.contrib.auth import get_user_model
 
-from .models import UserLocations
+from .models import Organization
+from .serializers import UserSerializer, OrganizationSerializer
 
 User = get_user_model()
 
 
 class UserViewSet(mixins.RetrieveModelMixin,
-                  mixins.UpdateModelMixin,
                   mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
-    @action(detail=True, methods=['get'])
-    def get_locations(self, request, pk=None):
-        instance = self.get_object()
-        locations = instance.locations.all()
-        serializer = UserLocationsSerializer(locations, many=True)
-        serialized_data = serializer.data
-        return Response(serialized_data)
+    def create_or_update(self, request, *args, **kwargs):
+        id_field = request.data.get('id')  # Assuming the 'id' field is sent in the request data
+        if id_field:
+            # Check if a user with the specified 'id' already exists
+            user = User.objects.filter(id=id_field).first()
+            if user:
+                # If user with the 'id' already exists, update the user with the new data
+                serializer = self.get_serializer(user, data=request.data, partial=True)
+            else:
+                # If user with the 'id' doesn't exist, create a new user
+                serializer = self.get_serializer(data=request.data)
+        else:
+            # If 'id' field is not provided, create a new user
+            serializer = self.get_serializer(data=request.data)
 
-    @action(detail=True, methods=['get'])
-    def clear_locations(self, request, pk=None):
-        instance = self.get_object()
-        instance.locations.all().delete()
-        return Response({"message": "ok"})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
 
-
-class UserLocationsCreateAPIView(generics.CreateAPIView):
-    queryset = UserLocations.objects.all()
-    serializer_class = UserLocationsSerializer
-
-
-class GetCategoriesAPIView(generics.ListAPIView):
-    serializer_class = CategorySerializer
-    queryset = Category.objects.all()
-
-
-class ProductsAPIView(mixins.ListModelMixin,
-                      mixins.UpdateModelMixin,
-                      viewsets.GenericViewSet):
-    serializer_class = ProductSerializer
-    queryset = Product.objects.all()
-    filter_backends = (filters.DjangoFilterBackend,)
-    filterset_fields = (
-        'category__name_uz',
-        'category__name_ru',
-        'category__name_en',
-    )
+    def create(self, request, *args, **kwargs):
+        return self.create_or_update(request, *args, **kwargs)
 
 
-class RetrieveProductAPIView(generics.RetrieveAPIView):
-    serializer_class = ProductSerializer
-    queryset = Product.objects.all()
+class OrganizationViewSet(mixins.RetrieveModelMixin,
+                          mixins.ListModelMixin,
+                          mixins.UpdateModelMixin,
+                          viewsets.GenericViewSet):
+    serializer_class = OrganizationSerializer
+    queryset = Organization.objects.all()
+    lookup_field = "slug"
 
-    def get_object(self):
-
-        queryset = self.get_queryset()
-
-        lang = self.kwargs['user_lang']
-        name = self.kwargs['name']
-        name_key = "name_" + lang
-        try:
-            return queryset.get(
-                **{name_key: name}
-            )
-        except Product.DoesNotExist:
-            raise Http404(
-                "No %s matches the given query." % Product._meta.object_name
-            )
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.action == 'list':
+            return qs.filter(hide=False)
+        return qs

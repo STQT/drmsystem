@@ -17,7 +17,7 @@ services:
       - postgres
     volumes:
       - ./api:/app:z
-      - /var/www/drm.itlink.uz:/var/www/drm.itlink.uz:z
+      - /var/www/drmsystembot.itlink.uz:/var/www/drmsystembot.itlink.uz:z
     env_file:
       - .env
     ports:

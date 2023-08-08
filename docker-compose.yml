@@ -64,10 +64,10 @@ services:
   redis:
     image: redis
     ports:
-      - "6381:6380"
+      - "6381:6381"
     volumes:
       - redis_data:/data
-    command: redis-server --port 6380
+    command: redis-server --port 6381
     networks:
       - tg_bot
 

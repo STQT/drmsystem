@@ -32,6 +32,10 @@ async def bot_echo_all(message: types.Message, state: FSMContext):
         ...
 
 
+async def remove_join_chat_message(m: types.Message):
+    await m.delete()
+
+
 # state_name = await state.get_state()
 # text = [
 #     f'Эхо в состоянии {hcode(state_name)}',
@@ -44,3 +48,4 @@ async def bot_echo_all(message: types.Message, state: FSMContext):
 def register_echo(dp: Dispatcher):
     dp.register_message_handler(bot_echo)
     dp.register_message_handler(bot_echo_all, state="*", content_types=types.ContentTypes.ANY)
+    dp.register_message_handler(remove_join_chat_message, content_types=['new_chat_members', 'left_chat_member'])

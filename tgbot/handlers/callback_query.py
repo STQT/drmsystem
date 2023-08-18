@@ -15,7 +15,7 @@ _ = i18ns.gettext
 
 
 async def process_callback(callback_query: CallbackQuery, db: Database, state: FSMContext):
-    await callback_query.answer(text="Выбрано")
+    await callback_query.answer(text="Таңдалды")
     data = await state.get_data()
     org = await db.get_organization_obj(data['org_slug'])
     _id, days, cost = callback_query.data.split('_')
@@ -25,10 +25,10 @@ async def process_callback(callback_query: CallbackQuery, db: Database, state: F
                             group_id=org[0]['group_id'])
     await callback_query.message.delete()
     kaspi_name = f"<b>{org[0]['kaspi_name']}</b>\n" if org[0]['kaspi_name'] else ""
-    text = (f"Вы выбираете подписку на {days} дней за {cost}\n"
-            f"Для того, чтобы оформить подписку отправьте деньги на Kaspi номер <b>{org[0]['kaspi']}</b>\n"
+    text = (f"Сіз {cost} теңгеге {days} күндік  жазылуды таңдадыңыз\n"
+            f"Жазылу үшін <b>{org[0]['kaspi']}</b> Kaspi нөміріне көрсетілген соманы жіберіңіз \n"
             f"{kaspi_name}"
-            f"После успешной оплаты пришлите сюда доказательство о своей оплате (скриншот или айди платежа)")
+            f"Төлем жасалғаннан кейін, төлеміңізді растайтын чекты осы жерге жіберіңіз (скриншот)")
     await callback_query.message.answer(text)
     await UserRegisterState.get_payment.set()
 
@@ -58,7 +58,8 @@ async def upgrade_callback(callback_query: CallbackQuery, db: Database, config: 
     await callback_query.answer()
     organizations = await db.get_organizations_list()
     if organizations[0]:
-        await callback_query.message.edit_text("Қайсы дыбыстаушы студияны қолдап, жазылымды алғыңыз келеді?(Жазылым ақшасы сол студияға түседі)",
+        await callback_query.message.edit_text("Қайсы дыбыстаушы студияны қолдап, жазылымды алғыңыз келеді?"
+                                               "(Жазылым ақшасы сол студияға түседі)",
                                                reply_markup=organizations_keyboard(organizations[0]))
     else:
         await callback_query.message.edit_text("Жазбада ешқандай студия жоқ")

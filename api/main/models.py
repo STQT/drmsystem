@@ -40,6 +40,7 @@ class Organization(models.Model):
     photo_updated = models.BooleanField(default=False)
     group_id = models.CharField(max_length=20)
     kaspi = models.CharField(max_length=12)
+    kaspi_name = models.CharField(max_length=20, blank=True, null=True)
     hide = models.BooleanField(default=False)
     slug = models.SlugField(unique=True)
 

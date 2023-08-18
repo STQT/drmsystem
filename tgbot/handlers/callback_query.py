@@ -24,8 +24,10 @@ async def process_callback(callback_query: CallbackQuery, db: Database, state: F
                             cost=cost,
                             group_id=org[0]['group_id'])
     await callback_query.message.delete()
+    kaspi_name = f"<b>{org[0]['kaspi_name']}</b>\n" if org[0]['kaspi_name'] else ""
     text = (f"Вы выбираете подписку на {days} дней за {cost}\n"
             f"Для того, чтобы оформить подписку отправьте деньги на Kaspi номер <b>{org[0]['kaspi']}</b>\n"
+            f"{kaspi_name}"
             f"После успешной оплаты пришлите сюда доказательство о своей оплате (скриншот или айди платежа)")
     await callback_query.message.answer(text)
     await UserRegisterState.get_payment.set()

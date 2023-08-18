@@ -33,7 +33,7 @@ async def send_answer_organization(m: Message, db: Database, org_slug, config: C
         org = org[0]
     prices = await db.get_prices()
     caption = (f"{org['name']}\n"
-               "Выберите стоимость подписки")
+               "Жазылым бағасын таңдаңыз")
     reply_markup = prices_keyboard(prices[0])
     photo_uri = org.get("photo_uri", "error")
     if not org["photo_uri"] or org["photo_updated"] is True:

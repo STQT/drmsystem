@@ -36,8 +36,7 @@ async def user_start(m: Message, db: Database, config: Config, state: FSMContext
         else:
             organizations = await db.get_organizations_list()
             if organizations[0]:
-                await m.answer("Қайсы дыбыстаушы студияны қолдап, жазылымды алғыңыз келеді?"
-                               "(Жазылым ақшасы сол студияға түседі)",
+                await m.answer("Қайсы дыбыстаушы студияны қолдап, жазылымды алғыңыз келеді?",
                                reply_markup=organizations_keyboard(organizations[0]))
             else:
                 await m.answer("Жазбада ешқандай студия жоқ")

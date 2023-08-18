@@ -70,7 +70,7 @@ def prices_keyboard(data):
 def organizations_keyboard(org_list):
     inline_kb = InlineKeyboardMarkup(row_width=1)
     for item in org_list:
-        text = "Студия: " + item['name']
+        text = item['name']
         button = InlineKeyboardButton(text=text,
                                       callback_data="org_" + item['slug'])
         inline_kb.insert(button)

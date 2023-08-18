@@ -80,7 +80,7 @@ def create_subscription(order_id, user_id, days):
             url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
             data = {
                 "chat_id": user_id,
-                "text": f"Ваша ссылка для подписки {link_resp.json()['result']['invite_link']}. Действует 1 день."
+                "text": f"Сіздің жазылым сілтемеңіз {link_resp.json()['result']['invite_link']}. 1 күнге жарамды."
             }
             response = requests.post(url, data=data)
 
@@ -128,7 +128,7 @@ def sending_notify_for_expiration_users():
             "сонда сізге қосымша 1 күн жазылым қосып береміз")
     inline_keyboard = {
         "inline_keyboard": [
-            [{"text": "📅 Обновить подписку", "callback_data": "upgrade"}, ]
+            [{"text": "📅 Жазылымды жаңарту", "callback_data": "upgrade"}, ]
         ]
     }
     keyboard_json = json.dumps(inline_keyboard)

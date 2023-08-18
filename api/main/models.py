@@ -43,6 +43,10 @@ class Organization(models.Model):
     kaspi_name = models.CharField(max_length=20, blank=True, null=True)
     hide = models.BooleanField(default=False)
     slug = models.SlugField(unique=True)
+    order = models.IntegerField(default=1)
+
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return self.name

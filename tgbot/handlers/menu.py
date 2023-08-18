@@ -36,8 +36,7 @@ async def main_menu(m: Message, db: Database):
             subscribe = await db.get_user_subscribe(m.from_user.id)
             if subscribe[0]:
                 created_at_datetime = datetime.strptime(subscribe[0]["created_at"], "%Y-%m-%dT%H:%M:%S.%f%z")
-                expiration_day_calculation = (f"{subscribe[0]['expiration_days']} "
-                                              f"{'день' if subscribe[0]['days'] == 1 else 'дня'}")
+                expiration_day_calculation = f"{subscribe[0]['expiration_days']} күн."
                 formatted_created_at = created_at_datetime.strftime("%d-%m-%Y")
                 text_string = (
                     f"Жазылым мерзімі {expiration_day_calculation} күн\n"

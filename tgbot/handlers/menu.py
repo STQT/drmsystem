@@ -26,11 +26,11 @@ async def main_menu(m: Message, db: Database):
                     status = "Мақұлданды" if app["is_approved"] else "Қабылданбады"
                     await m.answer_photo(
                         app["photo_uri"],
-                        caption=f"Заявка: {app['id']}\n"
-                                f"На: {app['days']} дней\n"
-                                f"Сумма: {app['cost']} тенге\n"
-                                f"Статус: {status}\n"
-                                f"Создано: {human_readable_date_time}"
+                        caption=f"Өтініш: {app['id']}\n"
+                                f"{app['days']} күнге\n"
+                                f"Сома: {app['cost']} теңге\n"
+                                f"Жазылым: {status}\n"
+                                f"Берілген уақыты: {human_readable_date_time}"
                     )
         elif m.text == "Менің жазылымым":
             subscribe = await db.get_user_subscribe(m.from_user.id)
@@ -40,9 +40,9 @@ async def main_menu(m: Message, db: Database):
                                               f"{'день' if subscribe[0]['days'] == 1 else 'дня'}")
                 formatted_created_at = created_at_datetime.strftime("%d-%m-%Y")
                 text_string = (
-                    f"Срок действия подписки {expiration_day_calculation}\n"
-                    f"Создано: {formatted_created_at}\n"
-                    f"Подписка оформлена на {subscribe[0]['days']} {'день' if subscribe[0]['days'] == 1 else 'дня'}"
+                    f"Жазылым мерзімі {expiration_day_calculation} күн\n"
+                    f"Берілген уақыты: {formatted_created_at}\n"
+                    f"Жазылым {subscribe[0]['days']} күнге ресімделді."
                 )
                 await m.answer(text_string,
                                reply_markup=upgrade_subscription_kb())

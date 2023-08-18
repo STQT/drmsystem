@@ -5,7 +5,7 @@ from aiogram.utils.exceptions import ChatNotFound
 
 from tgbot.config import Config
 from tgbot.db.queries import Database
-from tgbot.keyboards.inline import approve_delivery_buy
+from tgbot.keyboards.inline import approve_delivery_buy, organizations_keyboard
 from tgbot.keyboards.reply import main_menu_keyboard
 from tgbot.misc.states import UserRegisterState, MainMenuState
 from tgbot.misc.i18n import i18ns
@@ -27,13 +27,21 @@ async def user_start(m: Message, db: Database, config: Config, state: FSMContext
             await db.create_or_update_user(user_id=m.from_user.id, fullname=m.from_user.full_name,
                                            username=m.from_user.username)
         await m.answer("Сәлеметсіз бе!\n"
-                       "Shanyraq әуесқой дыбыстамалар жинағына арналған жазылымды осы Shanyraq Bot арқылы сатып ала аласыз.\n"
-                       "Жазылымдар жоспарын төменде көріп, өзіңізге қолайлысын таңдай аласыз.")
+                       "Shanyraq әуесқой дыбыстамалар жинағына арналған жазылымды осы "
+                       "Shanyraq Bot арқылы сатып ала аласыз.\n"
+                       "Жазылымдар жоспарын төменде көріп, өзіңізге қолайлысын таңдаңыз.")
         args = m.get_args()
         if args:
             org_slug = await send_answer_organization(m, db, args, config)
         else:
-            org_slug = await send_answer_organization(m, db, "main", config)
+            organizations = await db.get_organizations_list()
+            if organizations[0]:
+                await m.answer("Қайсы дыбыстаушы студияны қолдап, жазылымды алғыңыз келеді?"
+                               "(Жазылым ақшасы сол студияға түседі)",
+                               reply_markup=organizations_keyboard(organizations[0]))
+            else:
+                await m.answer("Жазбада ешқандай студия жоқ")
+            return
         await UserRegisterState.send_tel.set()
         await state.update_data(org_slug=org_slug)
     else:

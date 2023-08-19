@@ -5,7 +5,7 @@ from .models import Order, SubscriptionPrice, Subscriber
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ["user", "cost", "is_approved", "moderated_user", "created_at"]
+    list_display = ["user", "cost", "is_approved", "moderated_user", "created_at", "id"]
     ordering = ["-created_at"]
 
     def has_add_permission(self, request, obj=None):

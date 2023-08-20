@@ -53,7 +53,8 @@ async def get_payment(m: Message, state: FSMContext, db: Database, config):
     data = await state.get_data()
     text = (f"Жаңа өтініш: {data['org_slug']}\n"
             f"Күндер саны: {data['days']}\n"
-            f"Бағасы: {data['cost']}\n")
+            f"Бағасы: {data['cost']}\n"
+            f"UserID: {m.from_user.id}")
     try:
         file_id = m.photo[-1].file_id
         order_json = await db.create_order({

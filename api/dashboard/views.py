@@ -62,6 +62,7 @@ def get_subscribers_data(request):
 
 
 @login_required
+@cache_page(60 * 15)
 def get_detail_organization(request, slug):
     organization = get_object_or_404(Organization, slug=slug)
     all_orders = Order.objects.filter(org=slug)
@@ -71,7 +72,7 @@ def get_detail_organization(request, slug):
     context = {
         'obj': organization,
         "order_count": all_orders.count(),
-        "order_paid_count": paid_orders,
+        "order_paid_count": paid_orders.count(),
         "total_cost": total_cost,
     }
 

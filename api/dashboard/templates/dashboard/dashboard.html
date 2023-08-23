@@ -38,7 +38,12 @@
         <p>Active Users: {{ active_users }}</p>
         <p>Active Orders: {{ active_orders }}</p>
         <p>Total Subscribers: {{ total_subscribers }}</p>
-
+        <p>Organizations:</p>
+        <ul>
+            {% for org in organizations %}
+            <li><a href="/organizations/{{org.slug}}/">{{ org.name }}</a></li>
+            {% endfor %}
+        </ul>
         <div class="chart-container">
             <canvas id="orderChart" width="400" height="200"></canvas>
         </div>

@@ -17,6 +17,7 @@ class Order(models.Model):
     photo_uri = models.CharField(max_length=255, blank=True, null=True)
     cost = models.IntegerField()
     days = models.IntegerField()
+    org = models.CharField(max_length=20)
     link = models.CharField(max_length=255, blank=True, null=True)
     is_approved = models.BooleanField(default=False)
     moderated_user = models.CharField(null=True, max_length=255, blank=True)

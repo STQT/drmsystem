@@ -61,7 +61,8 @@ async def get_payment(m: Message, state: FSMContext, db: Database, config):
             "photo_uri": file_id,
             "cost": data["cost"],
             "user_id": m.from_user.id,
-            "days": data["days"]
+            "days": data["days"],
+            "org": data["org_slug"],
         })
         if order_json[1] in [200, 201]:
             await m.send_copy(data['group_id'])

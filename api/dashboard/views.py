@@ -1,6 +1,7 @@
 # dashboard_app/views.py
+from main.models import Organization
 from django.utils import timezone
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from orders.models import Order, Subscriber
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -19,12 +20,14 @@ def dashboard(request):
     active_users = User.objects.filter(stopped=False).count()
     active_orders = Order.objects.count()
     total_subscribers = Subscriber.objects.count()
+    organizations = Organization.objects.all()
 
     return render(request, 'dashboard/dashboard.html', {
         'total_users': total_users,
         'active_users': active_users,
         'active_orders': active_orders,
         'total_subscribers': total_subscribers,
+        'organizations': organizations,
     })
 
 
@@ -56,3 +59,14 @@ def get_subscribers_data(request):
         formatted_data.append({'created_day': formatted_date, 'count': entry['count']})
 
     return JsonResponse({'data': formatted_data})
+
+
+@login_required
+def get_detail_organization(request, slug):
+    organization = get_object_or_404(Organization, slug=slug)
+
+    context = {
+        'obj': organization,
+    }
+
+    return render(request, 'dashboard/organization.html', context)

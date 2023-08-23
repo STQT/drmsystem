@@ -10,6 +10,7 @@ User = get_user_model()
 
 class UserViewSet(mixins.RetrieveModelMixin,
                   mixins.CreateModelMixin,
+                  mixins.UpdateModelMixin,
                   viewsets.GenericViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()

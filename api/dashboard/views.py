@@ -1,4 +1,5 @@
 # dashboard_app/views.py
+from django.utils import timezone
 from django.shortcuts import render
 from orders.models import Order, Subscriber
 from django.contrib.auth import get_user_model
@@ -29,9 +30,17 @@ def dashboard(request):
 
 @cache_page(60 * 15)
 def get_orders_data(request):
-    orders_data = Order.objects.annotate(created_day=TruncDay('created_at')).values(
-        'created_day').annotate(count=Count('id'))
-    return JsonResponse({'data': list(orders_data)})
+    orders_data = Order.objects.annotate(
+        created_day=TruncDay('created_at')
+    ).values('created_day').annotate(count=Count('id'))
+
+    formatted_data = []
+    for entry in orders_data:
+        date = entry['created_day']
+        formatted_date = timezone.localtime(date).strftime('%Y-%m-%d')
+        formatted_data.append({'created_day': formatted_date, 'count': entry['count']})
+
+    return JsonResponse({'data': formatted_data})
 
 
 @cache_page(60 * 15)
@@ -39,4 +48,11 @@ def get_subscribers_data(request):
     subscribers_data = Subscriber.objects.annotate(
         created_day=TruncDay('created_at')
     ).values('created_day').annotate(count=Count('id'))
-    return JsonResponse({'data': list(subscribers_data)})
+
+    formatted_data = []
+    for entry in subscribers_data:
+        date = entry['created_day']
+        formatted_date = timezone.localtime(date).strftime('%Y-%m-%d')
+        formatted_data.append({'created_day': formatted_date, 'count': entry['count']})
+
+    return JsonResponse({'data': formatted_data})

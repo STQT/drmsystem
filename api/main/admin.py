@@ -11,8 +11,9 @@ class UserAdmin(admin.ModelAdmin):
     #     (None, {"fields": ("id", "password")}),
     #     ("Important dates", {"fields": ("last_login",)}),
     # )
-    list_display = ["id", "username", "fullname", "is_admin"]
+    list_display = ["id", "username", "fullname", "stopped"]
     list_display_links = ['id', 'fullname']
+    search_fields = ["id", "username"]
 
     def has_add_permission(self, request, obj=None):
         return False

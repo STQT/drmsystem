@@ -54,7 +54,7 @@
         .then(data => {
             const orderDates = data.data.map(item => item.created_day);
             const orderCounts = data.data.map(item => item.count);
-
+            console.log("$$$$$$$$$$$$$$$$$$$$$$")
             const orderChart = new Chart(document.getElementById('orderChart'), {
                 type: 'line',
                 data: {
@@ -82,7 +82,14 @@
                     labels: subscriberDates,
                     datasets: [{
                         label: 'Subscribers',
-                   
+                        data: subscriberCounts,
+                        borderColor: 'green',
+                        fill: false
+                    }]
+                }
+            });
+        });
+
     </script>
 </body>
 </html>

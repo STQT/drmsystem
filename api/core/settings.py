@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "django_filters",
     "main",
     "orders",
+    "dashboard",
     "django_celery_beat",
 ]
 
@@ -162,7 +163,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 TELEGRAM_BOT_TOKEN = env("BOT_TOKEN")
 TELEGRAM_BOT_CONTENT_CHAT_ID = env("CHANNEL_ID")
-
+LOGIN_URL = ADMIN_URL if ADMIN_URL else "/admin"
 if DEBUG is False:
     try:
         import sentry_sdk

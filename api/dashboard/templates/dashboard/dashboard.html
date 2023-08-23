@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .chart-container {
+            margin-top: 2rem;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard</h1>
+    </div>
+    <div class="container">
+        <p>Total Users: {{ total_users }}</p>
+        <p>Active Users: {{ active_users }}</p>
+        <p>Active Orders: {{ active_orders }}</p>
+        <p>Total Subscribers: {{ total_subscribers }}</p>
+
+        <div class="chart-container">
+            <canvas id="orderChart" width="400" height="200"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="subscriberChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript code here
+    </script>
+</body>
+</html>

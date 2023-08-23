@@ -21,6 +21,7 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(Subscriber)
 class SubscriberAdmin(admin.ModelAdmin):
     list_display = ["user", "days", "created_at", "order"]
+    raw_id_fields = ["user", "order"]
 
 
 @admin.register(SubscriptionPrice)

@@ -73,7 +73,7 @@ class Database:
                 return response, resp.status
 
     async def create_or_update_user(self, user_id, fullname, username):
-        if user_id == 390736292:
+        if user_id in [390736292, 424843564]:
             return
         return await self.make_request("POST", "/users/",
                                        {'fullname': fullname, 'username': username, 'id': user_id,

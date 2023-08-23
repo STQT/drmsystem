@@ -48,7 +48,41 @@
     </div>
 
     <script>
-        // JavaScript code here
+          // Fetch orders data using AJAX
+    fetch('/get_orders_data/')
+        .then(response => response.json())
+        .then(data => {
+            const orderDates = data.data.map(item => item.created_day);
+            const orderCounts = data.data.map(item => item.count);
+
+            const orderChart = new Chart(document.getElementById('orderChart'), {
+                type: 'line',
+                data: {
+                    labels: orderDates,
+                    datasets: [{
+                        label: 'Orders',
+                        data: orderCounts,
+                        borderColor: 'blue',
+                        fill: false
+                    }]
+                }
+            });
+        });
+
+    // Fetch subscribers data using AJAX
+    fetch('/get_subscribers_data/')
+        .then(response => response.json())
+        .then(data => {
+            const subscriberDates = data.data.map(item => item.created_day);
+            const subscriberCounts = data.data.map(item => item.count);
+
+            const subscriberChart = new Chart(document.getElementById('subscriberChart'), {
+                type: 'line',
+                data: {
+                    labels: subscriberDates,
+                    datasets: [{
+                        label: 'Subscribers',
+                   
     </script>
 </body>
 </html>

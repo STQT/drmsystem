@@ -6,7 +6,7 @@ from orders.models import Order, Subscriber
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncDay
 from django.views.decorators.cache import cache_page
 
@@ -64,9 +64,15 @@ def get_subscribers_data(request):
 @login_required
 def get_detail_organization(request, slug):
     organization = get_object_or_404(Organization, slug=slug)
+    all_orders = Order.objects.filter(org=slug)
+    paid_orders = all_orders.filter(is_approved=True)
+    total_cost = paid_orders.aggregate(total_cost=Sum('cost'))['total_cost']
 
     context = {
         'obj': organization,
+        "order_count": all_orders.count(),
+        "order_paid_count": paid_orders,
+        "total_cost": total_cost,
     }
 
     return render(request, 'dashboard/organization.html', context)

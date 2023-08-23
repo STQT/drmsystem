@@ -1,10 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Dashboard</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-{{ obj.name }}
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Total Subscribers -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Organization name</h5>
+                        <p class="card-text">{{ org.name }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Total Users -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">All Orders</h5>
+                        <p class="card-text">{{ all_orders }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Users -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Paid Orders</h5>
+                        <p class="card-text">{{ paid_orders }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Orders -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Cost</h5>
+                        <p class="card-text">{{ total_cost }}</p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
 </body>
 </html>

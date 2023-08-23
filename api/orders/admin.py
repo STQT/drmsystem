@@ -20,9 +20,13 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(Subscriber)
 class SubscriberAdmin(admin.ModelAdmin):
-    list_display = ["user", "days", "created_at", "order"]
+    list_display = ["user", "days", "created_at", "order", "get_order_org"]
     raw_id_fields = ["user", "order"]
 
+    def get_order_org(self, obj):
+        return obj.order.org
+
+    get_order_org.short_description = "Org"
 
 @admin.register(SubscriptionPrice)
 class SubscriptionPriceAdmin(admin.ModelAdmin):

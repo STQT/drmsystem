@@ -29,30 +29,7 @@ class Database:
         finally:
             await session.close()
 
-    async def create_user(self, username: str,
-                          user_id: int,
-                          fullname: str,
-                          user_lang: str = "uz"):
-        data = {
-            "username": username,
-            "password": 'password',
-            "id": user_id,
-            "user_lang": user_lang,
-            "fullname": fullname.replace("'", "´").replace('"', "”")
-        }
-        return await self.make_request("POST", "/users/", data)
-
-    async def update_user(self, username: str,
-                          user_id: int,
-                          fullname: str,
-                          user_lang: str = "uz"):
-        data = {
-            "username": username,
-            "password": 'password',
-            "id": user_id,
-            "user_lang": user_lang,
-            "fullname": fullname
-        }
+    async def update_user(self, user_id: int, data: dict):
         return await self.make_request("PATCH",
                                        "/users/" + str(user_id) + "/", data)
 

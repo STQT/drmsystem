@@ -9,6 +9,7 @@ from tgbot.filters.admin import AdminFilter
 from tgbot.handlers.admin import register_admin
 from tgbot.handlers.callback_query import register_callback
 from tgbot.handlers.echo import register_echo
+from tgbot.handlers.kicked import register_stopped_users
 from tgbot.handlers.menu import register_menu
 from tgbot.handlers.user_start import register_user
 from tgbot.middlewares.acl import ACLMiddleware
@@ -33,7 +34,7 @@ def register_all_handlers(dp):
     register_user(dp)
     register_menu(dp)
     register_callback(dp)
-
+    register_stopped_users(dp)
     register_echo(dp)
 
 

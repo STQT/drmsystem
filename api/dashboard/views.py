@@ -35,7 +35,7 @@ def dashboard(request):
 def get_orders_data(request):
     orders_data = Order.objects.annotate(
         created_day=TruncDay('created_at')
-    ).values('created_day').annotate(count=Count('id'))
+    ).order_by('created_at').values('created_day').annotate(count=Count('id'))
 
     formatted_data = []
     for entry in orders_data:
@@ -50,7 +50,7 @@ def get_orders_data(request):
 def get_subscribers_data(request):
     subscribers_data = Subscriber.objects.annotate(
         created_day=TruncDay('created_at')
-    ).values('created_day').annotate(count=Count('id'))
+    ).order_by('created_at').values('created_day').annotate(count=Count('id'))
 
     formatted_data = []
     for entry in subscribers_data:

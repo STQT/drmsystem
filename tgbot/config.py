@@ -4,6 +4,12 @@ from pathlib import Path
 
 from environs import Env
 
+TOPICS = {
+    "Dem студиясы": "9",
+    "Saga dubsmation": "14",
+    "Aldik Dub": "13",
+}
+
 
 @dataclass
 class DbConfig:
@@ -17,6 +23,7 @@ class TgBot:
     admin_ids: list[int]
     group_id: str
     channel_id: str
+
 
 @dataclass
 class Miscellaneous:

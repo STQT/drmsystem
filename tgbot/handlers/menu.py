@@ -5,7 +5,7 @@ from aiogram import Dispatcher, types
 from aiogram.types import Message, ReplyKeyboardRemove
 
 from tgbot.db.queries import Database
-from tgbot.keyboards.inline import upgrade_subscription_kb
+from tgbot.keyboards.inline import upgrade_subscription_kb, topics_keyboards
 from tgbot.keyboards.reply import main_menu_keyboard
 from tgbot.misc.states import MainMenuState
 
@@ -47,6 +47,9 @@ async def main_menu(m: Message, db: Database):
                                reply_markup=upgrade_subscription_kb())
             else:
                 await m.answer("Сізде белсенді жазылым жоқ")
+        elif m.text == "Тіркелген арналар":
+            await m.answer("Төменде тіркелген арналарыңыз сілтемелеры көрсетілген 👇",
+                           reply_markup=topics_keyboards())
         else:
             await m.answer("Төменде берілген батырманы таңдаңыз",
                            reply_markup=main_menu_keyboard())

@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from tgbot.misc.i18n import i18ns
+from tgbot.config import TOPICS
 
 _ = i18ns.gettext
 
@@ -83,4 +84,15 @@ def upgrade_subscription_kb():
         InlineKeyboardButton(text=_("📅 Жазылымды ұзарту"),
                              callback_data=f'upgrade'),
     )
+    return inline_kb
+
+
+def topics_keyboards():
+    tg_url = "https://t.me/c/1530494054/"
+    inline_kb = InlineKeyboardMarkup(row_width=2)
+    for name in TOPICS:
+        inline_kb.add(
+            InlineKeyboardButton(text=name,
+                                 url=tg_url + TOPICS[name]),
+        )
     return inline_kb

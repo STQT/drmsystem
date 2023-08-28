@@ -8,4 +8,5 @@ def main_menu_keyboard():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(KeyboardButton(text=_("Менің жазылымым")))
     keyboard.add(KeyboardButton(text=_("Менің өтініштерім")))
+    keyboard.add(KeyboardButton(text=_("Тіркелген арналар")))
     return keyboard

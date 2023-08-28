@@ -8,3 +8,7 @@ class UserRegisterState(StatesGroup):
 
 class MainMenuState(StatesGroup):
     get_menu = State()
+
+
+class BroadcastingState(StatesGroup):
+    get_content = State()

@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 from aiogram import Dispatcher, types
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message
 
 from tgbot.db.queries import Database
 from tgbot.keyboards.inline import upgrade_subscription_kb, topics_keyboards
@@ -56,6 +56,7 @@ async def main_menu(m: Message, db: Database):
             await MainMenuState.get_menu.set()
     else:
         ...
+
 
 def register_menu(dp: Dispatcher):
     dp.register_message_handler(main_menu, state=MainMenuState.get_menu)

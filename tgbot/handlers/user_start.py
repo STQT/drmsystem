@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, ContentTypes
@@ -18,14 +20,16 @@ async def user_start(m: Message, db: Database, config: Config, state: FSMContext
     if m.chat.type == types.ChatType.PRIVATE:
         # link = await create_invite_link(m.bot, config.tg_bot.channel_id, "HASHSUM")
         user = await db.get_user(user_id=m.from_user.id)
+        logging.info(user)
         if user[0] and user[0]['is_subscribed'] is True:
             await m.answer(_("Төменде берілген батырманы таңдаңыз"),
                            reply_markup=main_menu_keyboard())
             await MainMenuState.get_menu.set()
             return
         else:
+            logging.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             await db.create_or_update_user(user_id=m.from_user.id, fullname=m.from_user.full_name,
-                                           username=m.from_user.username)
+                                           username=m.from_user.username, config=config)
         await m.answer("Сәлеметсіз бе!\n"
                        "Shanyraq әуесқой дыбыстамалар жинағына арналған жазылымды осы "
                        "Shanyraq Bot арқылы сатып ала аласыз.\n"

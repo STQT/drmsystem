@@ -3,9 +3,6 @@ import logging
 from aiogram import types
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
-from tgbot.config import Config
-from tgbot.db.queries import Database
-
 
 class ACLMiddleware(BaseMiddleware):
     async def setup_chat(self, data: dict, user: types.User):

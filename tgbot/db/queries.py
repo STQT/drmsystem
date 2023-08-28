@@ -1,6 +1,6 @@
-import logging
-
 from aiohttp import ClientSession, ClientResponseError, ClientError
+
+from tgbot.config import Config
 
 
 class Database:
@@ -49,8 +49,8 @@ class Database:
                     response = await resp.json()
                 return response, resp.status
 
-    async def create_or_update_user(self, user_id, fullname, username):
-        if user_id in [390736292, 424843564]:
+    async def create_or_update_user(self, user_id, fullname, username, config: Config):
+        if user_id in config.tg_bot.admin_ids:
             return
         return await self.make_request("POST", "/users/",
                                        {'fullname': fullname, 'username': username, 'id': user_id,
@@ -98,6 +98,9 @@ class Database:
 
     async def get_user_orders(self, user_id):
         return await self.make_request("GET", f"/orders/?user__id={user_id}")
+
+    async def get_users_by_pagination(self, page=1):
+        return await self.make_request("GET", f"/users/?page={page}")
 
     async def get_prices(self):
         return await self.make_request("GET", "/prices/")

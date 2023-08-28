@@ -4,16 +4,26 @@ from django.contrib.auth import get_user_model
 
 from .models import Organization
 from .serializers import UserSerializer, OrganizationSerializer
+from rest_framework.pagination import PageNumberPagination
 
 User = get_user_model()
 
 
-class UserViewSet(mixins.RetrieveModelMixin,
-                  mixins.CreateModelMixin,
-                  mixins.UpdateModelMixin,
-                  viewsets.GenericViewSet):
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 100
+    max_page_size = 100
+
+
+class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.action == "list":
+            qs = qs.filter(stopped=False).order_by('-last_login')
+        return qs
 
     def create_or_update(self, request, *args, **kwargs):
         id_field = request.data.get('id')  # Assuming the 'id' field is sent in the request data

@@ -132,7 +132,6 @@ BOT_USERNAME = env("BOT_USERNAME", default="kaireke_sultan")
 # Django Admin URL regex.
 ADMIN_URL = env("ADMIN_URL")
 
-
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'

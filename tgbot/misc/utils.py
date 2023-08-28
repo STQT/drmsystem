@@ -104,7 +104,7 @@ async def broadcaster(m: Message, db: Database) -> int:
         all_users, have_next = await get_user_per_page(db, page=page)
         try:
             for user in all_users:
-                if await broadcast_send_message(m, db, user['id']):
+                if await broadcast_send_message(m, user['id'], db):
                     count += 1
                 await asyncio.sleep(.05)  # 20 messages per second (Limit: 30 messages per second)
         finally:

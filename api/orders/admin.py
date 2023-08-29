@@ -6,6 +6,7 @@ from .models import Order, SubscriptionPrice, Subscriber
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ["user", "cost", "is_approved", "moderated_user", "created_at", "id"]
+    raw_id_fields = ["user",]
     ordering = ["-created_at"]
     # readonly_fields = ["created_at"]
 

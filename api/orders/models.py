@@ -21,7 +21,7 @@ class Order(models.Model):
     link = models.CharField(max_length=255, blank=True, null=True)
     is_approved = models.BooleanField(default=False)
     moderated_user = models.CharField(null=True, max_length=255, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
 
     def __str__(self):
         return "Юзер: " + str(self.user) + " | " + str(self.cost) + " тенге"
@@ -40,7 +40,7 @@ class Subscriber(models.Model):
                                 on_delete=models.SET_DEFAULT, default=1)
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
     days = models.IntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
 
     def expiration_date(self):
         return self.created_at + timezone.timedelta(days=self.days)

@@ -7,7 +7,7 @@ from .models import Order, SubscriptionPrice, Subscriber
 class OrderAdmin(admin.ModelAdmin):
     list_display = ["user", "cost", "is_approved", "moderated_user", "created_at", "id"]
     ordering = ["-created_at"]
-    readonly_fields = ["created_at"]
+    # readonly_fields = ["created_at"]
 
     # def has_add_permission(self, request, obj=None):
     #     return False

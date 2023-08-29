@@ -15,11 +15,11 @@ class UserAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'fullname']
     search_fields = ["id", "username"]
 
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
+    # def has_add_permission(self, request, obj=None):
+    #     return False
+    #
+    # def has_change_permission(self, request, obj=None):
+    #     return False
 
 
 @admin.register(Organization)

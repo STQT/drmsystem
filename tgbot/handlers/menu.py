@@ -14,7 +14,6 @@ async def main_menu(m: Message, db: Database):
     if m.chat.type == types.ChatType.PRIVATE:
         if m.text == "Менің өтініштерім":
             applications = await db.get_user_orders(m.from_user.id)
-            logging.info(applications[0])
             if not applications[0]:
                 await m.answer("Сізде ешқандай өтініш жоқ")
             else:

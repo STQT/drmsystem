@@ -1,5 +1,5 @@
 from aiogram import Dispatcher
-from aiogram.types import Message, ContentTypes
+from aiogram.types import Message, ContentTypes, ChatType
 
 from tgbot.db.queries import Database
 from tgbot.keyboards.reply import admin_keyboards, cancel_keyboard
@@ -8,22 +8,31 @@ from tgbot.misc.utils import broadcaster
 
 
 async def admin_start(message: Message, state):
-    await message.answer("Hello, admin!", reply_markup=admin_keyboards())
-    await state.finish()
+    if message.chat.type == ChatType.PRIVATE:
+        await message.answer("Hello, admin!", reply_markup=admin_keyboards())
+        await state.finish()
+    else:
+        ...
 
 
 async def broadcasting(message: Message):
-    await message.answer("Send me broadcasting content", reply_markup=cancel_keyboard())
-    await BroadcastingState.get_content.set()
+    if message.chat.type == ChatType.PRIVATE:
+        await message.answer("Send me broadcasting content", reply_markup=cancel_keyboard())
+        await BroadcastingState.get_content.set()
+    else:
+        ...
 
 
 async def submit_broadcasting(message: Message, db: Database, state):
-    if message.text == "❌ Cancel":
-        pass
+    if message.chat.type == ChatType.PRIVATE:
+        if message.text == "❌ Cancel":
+            pass
+        else:
+            await broadcaster(message, db)
+        await message.answer("Hello, admin!", reply_markup=admin_keyboards())
+        await state.finish()
     else:
-        await broadcaster(message, db)
-    await message.answer("Hello, admin!", reply_markup=admin_keyboards())
-    await state.finish()
+        ...
 
 
 def register_admin(dp: Dispatcher):

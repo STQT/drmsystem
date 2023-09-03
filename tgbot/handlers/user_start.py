@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from aiogram import Dispatcher, types
@@ -72,6 +73,9 @@ async def get_payment(m: Message, state: FSMContext, db: Database, config):
             await m.bot.send_message(data['group_id'], text=text, reply_markup=approve_delivery_buy(order_id))
             await m.answer(_("Сіздің өтінішіңіз әкімшілерге тексеріске жіберілді. Күте тұрыңыз."),
                            reply_markup=main_menu_keyboard())
+            await asyncio.sleep(10)
+            await m.answer("Ескерту: егер сізге сілтеме келмей жатса, демек сіз тым кеш уақытта немесе жұмыстан тыс "
+                           "уақытта жібердіңіз. Әкімшілер сәлден соң міндетті түрде тексеріп, сілтеме жібереді.")
         else:
             await m.answer("Сізде әлдеқашан тексерістен өтпеген өтініштеріңіз бар. Өтініш, күте тұрыңыз.")
         await MainMenuState.get_menu.set()

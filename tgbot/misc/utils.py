@@ -24,10 +24,7 @@ async def update_server_photo_uri(db: Database, org_slug, file_id):
     })
 
 
-async def send_answer_organization(m: Message, db: Database, org_slug, config: Config,
-                                   callback_query=None):
-    if callback_query:
-        await callback_query.message.delete()
+async def send_answer_organization(m: Message, db: Database, org_slug, config: Config):
     org = await db.get_organization_obj(org_slug)
     org = org[0]
     if org is None:

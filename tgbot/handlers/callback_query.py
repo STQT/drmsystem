@@ -65,7 +65,7 @@ async def upgrade_callback(callback_query: CallbackQuery, db: Database, config: 
 async def get_organization_callback(callback_query: CallbackQuery, db: Database, config: Config, state: FSMContext):
     await callback_query.answer()
     _org, org_slug = callback_query.data.split('_')
-    org_slug = await send_answer_organization(callback_query.message, db, org_slug, config, callback_query)
+    org_slug = await send_answer_organization(m=callback_query.message, db=db, org_slug=org_slug, config=config)
     await UserRegisterState.send_tel.set()
     await state.update_data(org_slug=org_slug)
 
